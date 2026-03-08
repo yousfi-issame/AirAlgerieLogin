@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Air Algérie Login Background</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #06131d;
+    }
+
+    /* Blurred fill layer */
+    .bg-fill {
+      position: fixed;
+      inset: 0;
+      background-image: url("https://res.cloudinary.com/dcht5c6jc/image/upload/v1772809685/Screenshot_2026-03-06_154923_cu8okp.png");
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: blur(18px) brightness(0.75);
+      transform: scale(1.08);
+      animation: slowZoom 18s ease-in-out infinite alternate;
+    }
+
+    /* Main image layer - never cropped */
+    .bg-main {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+
+    .bg-main img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+    }
+
+    @keyframes slowZoom {
+      from { transform: scale(1.08); }
+      to   { transform: scale(1.14); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-fill {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-fill" aria-hidden="true"></div>
+
+  <div class="bg-main">
+    <img
+      src="https://res.cloudinary.com/dcht5c6jc/image/upload/v1772809685/Screenshot_2026-03-06_154923_cu8okp.png"
+      alt="Air Algérie airplane background"
+    />
+  </div>
+</body>
+</html>
