@@ -3,56 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Air Algérie Login Background</title>
-
+  <title>Air Algérie Background</title>
   <style>
     html, body {
       margin: 0;
-      padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #071321;
+      background: #000;
     }
 
-    .bg {
-      position: fixed;
-      inset: 0;
-      background-image: url("https://res.cloudinary.com/dcht5c6jc/image/upload/v1772809685/Screenshot_2026-03-06_154923_cu8okp.png");
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: 58% center;
-      transform: scale(1.03);
-      animation: slowZoom 18s ease-in-out infinite alternate;
+    .frame {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0,0,0,0.14),
-          rgba(0,0,0,0.04) 35%,
-          rgba(0,0,0,0.14)
-        );
-      pointer-events: none;
-    }
-
-    @keyframes slowZoom {
-      from { transform: scale(1.03); }
-      to   { transform: scale(1.07); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .bg {
-        animation: none;
-      }
+    .frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div class="bg"></div>
-  <div class="overlay"></div>
+  <div class="frame">
+    <img src="https://res.cloudinary.com/dcht5c6jc/image/upload/v1772809685/Screenshot_2026-03-06_154923_cu8okp.png" alt="Air Algérie" />
+  </div>
 </body>
 </html>
