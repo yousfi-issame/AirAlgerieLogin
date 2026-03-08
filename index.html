@@ -10,21 +10,19 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #0b1430; /* better than black */
     }
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      object-position: center center;
-      display: block;
+    .bg {
+      position: fixed;
+      inset: 0;
+      background-image: url("https://res.cloudinary.com/dcht5c6jc/image/upload/v1772964665/ChatGPT_Image_Mar_8_2026_11_10_54_AM_fh3wdi.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
     }
   </style>
 </head>
 <body>
-  <img src="https://res.cloudinary.com/dcht5c6jc/image/upload/v1772964665/ChatGPT_Image_Mar_8_2026_11_10_54_AM_fh3wdi.png" />
+  <div class="bg"></div>
 </body>
 </html>
-
-
