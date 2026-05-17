@@ -1,0 +1,340 @@
+import { LightningElement, api, track } from 'lwc';
+
+function pad(value) {
+    return String(value).padStart(2, '0');
+}
+
+function toIso(date) {
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function parseIso(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) {
+        return null;
+    }
+
+    const [year, month, day] = value.split('-').map((part) => parseInt(part, 10));
+    const date = new Date(year, month - 1, day);
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+
+    return date;
+}
+
+function sameIso(a, b) {
+    return a && b && a === b;
+}
+
+export default class EDolDatePicker extends LightningElement {
+    @api name;
+    @api value = '';
+    @api min = '';
+    @api max = '';
+    @api placeholder = 'DD/MM/YYYY';
+    @api ariaLabel = 'Select date';
+    @api disabled = false;
+
+    @track isOpen = false;
+    currentYear;
+    currentMonth;
+
+    weekdayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+    connectedCallback() {
+        this.setMonthFromValue();
+    }
+
+    renderedCallback() {
+        this.syncNativeSelects();
+    }
+
+    syncNativeSelects() {
+        const monthSelect = this.template.querySelector('.edol-calendar-month');
+        if (monthSelect && monthSelect.value !== this.currentMonthString) {
+            monthSelect.value = this.currentMonthString;
+        }
+
+        const yearSelect = this.template.querySelector('.edol-calendar-year');
+        if (yearSelect && yearSelect.value !== this.currentYearString) {
+            yearSelect.value = this.currentYearString;
+        }
+    }
+
+    @api
+    focus() {
+        const input = this.template.querySelector('.edol-date-display');
+        if (input) {
+            input.focus();
+        }
+    }
+
+    get controlClass() {
+        const classes = ['edol-date-control'];
+        if (this.isOpen) {
+            classes.push('is-open');
+        }
+        if (this.disabled) {
+            classes.push('is-disabled');
+        }
+        return classes.join(' ');
+    }
+
+    get toggleLabel() {
+        return this.isOpen ? 'Close calendar' : 'Open calendar';
+    }
+
+    get calendarLabel() {
+        return 'Calendar';
+    }
+
+    get previousLabel() {
+        return 'Previous month';
+    }
+
+    get nextLabel() {
+        return 'Next month';
+    }
+
+    get todayIso() {
+        return toIso(new Date());
+    }
+
+    get isTodayDisabled() {
+        return this.isDisabled(this.todayIso);
+    }
+
+    get todayButtonDisabled() {
+        return this.disabled || this.isTodayDisabled;
+    }
+
+    get displayValue() {
+        const date = parseIso(this.value);
+        if (!date) {
+            return '';
+        }
+
+        return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+    }
+
+    get monthYearLabel() {
+        const date = new Date(this.currentYear, this.currentMonth, 1);
+        return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    }
+
+    get currentMonthString() {
+        return String(this.currentMonth);
+    }
+
+    get currentYearString() {
+        return String(this.currentYear);
+    }
+
+    get monthOptions() {
+        return Array.from({ length: 12 }, (_, index) => {
+            const date = new Date(2026, index, 1);
+            return {
+                value: String(index),
+                label: date.toLocaleDateString(undefined, { month: 'short' })
+            };
+        });
+    }
+
+    get yearOptions() {
+        const today = new Date();
+        const minDate = parseIso(this.min);
+        const maxDate = parseIso(this.max);
+        const minYear = minDate ? minDate.getFullYear() : today.getFullYear() - 120;
+        const maxYear = maxDate ? maxDate.getFullYear() : today.getFullYear() + 10;
+        const years = [];
+
+        for (let year = maxYear; year >= minYear; year -= 1) {
+            years.push({ value: String(year), label: String(year) });
+        }
+
+        return years;
+    }
+
+    get calendarDays() {
+        const days = [];
+        const firstOfMonth = new Date(this.currentYear, this.currentMonth, 1);
+        const start = new Date(this.currentYear, this.currentMonth, 1 - firstOfMonth.getDay());
+        const today = this.todayIso;
+
+        for (let index = 0; index < 42; index += 1) {
+            const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
+            const iso = toIso(date);
+            const isCurrentMonth = date.getMonth() === this.currentMonth;
+            const isSelected = sameIso(iso, this.value);
+            const isToday = sameIso(iso, today);
+            const disabled = this.isDisabled(iso);
+
+            const classes = ['edol-day'];
+            if (!isCurrentMonth) {
+                classes.push('is-muted');
+            }
+            if (isToday) {
+                classes.push('is-today');
+            }
+            if (isSelected) {
+                classes.push('is-selected');
+            }
+
+            days.push({
+                key: `${iso}-${index}`,
+                iso,
+                label: date.getDate(),
+                className: classes.join(' '),
+                disabled,
+                title: iso
+            });
+        }
+
+        return days;
+    }
+
+    setMonthFromValue() {
+        const selectedDate = parseIso(this.value);
+        const fallbackDate = parseIso(this.max) || new Date();
+        const date = selectedDate || fallbackDate;
+
+        this.currentYear = date.getFullYear();
+        this.currentMonth = date.getMonth();
+    }
+
+    isDisabled(iso) {
+        if (this.min && iso < this.min) {
+            return true;
+        }
+
+        if (this.max && iso > this.max) {
+            return true;
+        }
+
+        return false;
+    }
+
+    openCalendar(event) {
+        if (this.disabled) {
+            this.isOpen = false;
+            return;
+        }
+        if (event) {
+            event.stopPropagation();
+        }
+
+        if (!this.isOpen) {
+            this.setMonthFromValue();
+            this.isOpen = true;
+        }
+    }
+
+    toggleCalendar(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            this.isOpen = false;
+            return;
+        }
+
+        if (this.isOpen) {
+            this.isOpen = false;
+        } else {
+            this.setMonthFromValue();
+            this.isOpen = true;
+        }
+    }
+
+    stopClick(event) {
+        event.stopPropagation();
+    }
+
+    handleMonthChange(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            return;
+        }
+        const month = parseInt(event.target.value, 10);
+        if (!Number.isNaN(month)) {
+            this.currentMonth = month;
+        }
+    }
+
+    handleYearChange(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            return;
+        }
+        const year = parseInt(event.target.value, 10);
+        if (!Number.isNaN(year)) {
+            this.currentYear = year;
+        }
+    }
+
+    previousMonth(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            return;
+        }
+        const date = new Date(this.currentYear, this.currentMonth - 1, 1);
+        this.currentYear = date.getFullYear();
+        this.currentMonth = date.getMonth();
+    }
+
+    nextMonth(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            return;
+        }
+        const date = new Date(this.currentYear, this.currentMonth + 1, 1);
+        this.currentYear = date.getFullYear();
+        this.currentMonth = date.getMonth();
+    }
+
+    selectDate(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            return;
+        }
+        const iso = event.currentTarget.dataset.date;
+
+        if (!iso || this.isDisabled(iso)) {
+            return;
+        }
+
+        this.value = iso;
+        this.isOpen = false;
+        this.dispatchDateChange();
+    }
+
+    selectToday(event) {
+        event.stopPropagation();
+        if (this.disabled) {
+            return;
+        }
+
+        if (this.isTodayDisabled) {
+            return;
+        }
+
+        this.value = this.todayIso;
+        this.setMonthFromValue();
+        this.isOpen = false;
+        this.dispatchDateChange();
+    }
+
+    dispatchDateChange() {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                name: this.name,
+                value: this.value
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+}

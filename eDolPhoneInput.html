@@ -1,0 +1,28 @@
+<template>
+    <div class="edolLang" onkeydown={handleKeydown}>
+        <button class="edolLang__button" type="button" aria-haspopup="listbox" aria-expanded={isOpen} onclick={toggleMenu}>
+            <img class="edolLang__flag" src={selectedOption.flag} alt="" />
+            <span class="edolLang__text">{selectedOption.label}</span>
+            <span class="edolLang__chevron">⌄</span>
+        </button>
+
+        <template if:true={isOpen}>
+            <div class="edolLang__menu" role="listbox">
+                <template for:each={options} for:item="option">
+                    <button
+                        key={option.value}
+                        type="button"
+                        class={option.className}
+                        data-language={option.value}
+                        role="option"
+                        aria-selected={option.selected}
+                        onclick={handleOptionClick}
+                    >
+                        <img class="edolLang__optionFlag" src={option.flag} alt="" />
+                        <span class="edolLang__optionLabel">{option.label}</span>
+                    </button>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,332 @@
+import { LightningElement, api } from 'lwc';
+import basePath from '@salesforce/community/basePath';
+import heroBackground from '@salesforce/resourceUrl/SiteBackground';
+import trackComplaint from '@salesforce/apex/EDolTrackComplaintController.trackComplaint';
+import { getInitialLanguage } from 'c/eDolFormData';
+
+function buildCommunityUrl(path) {
+    if (!path || path === '/') {
+        return basePath || '/';
+    }
+    if (/^https?:\/\//i.test(path)) {
+        return path;
+    }
+
+    const cleanBase = basePath && basePath !== '/' ? basePath.replace(/\/$/, '') : '';
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+    if (cleanBase && (cleanPath === cleanBase || cleanPath.startsWith(`${cleanBase}/`))) {
+        return cleanPath;
+    }
+
+    return `${cleanBase}${cleanPath}` || '/';
+}
+
+
+function getCaseNumberFromUrl() {
+    try {
+        const params = new URLSearchParams(window.location.search || '');
+        const rawValue = params.get('casenumber') || params.get('caseNumber') || params.get('case') || params.get('reference') || params.get('ref') || '';
+        return (rawValue || '').replace(/\D/g, '').slice(0, 12);
+    } catch (error) {
+        return '';
+    }
+}
+
+function setCaseNumberInUrl(caseNumber) {
+    if (!caseNumber || typeof window === 'undefined' || !window.history || !window.history.replaceState) {
+        return;
+    }
+
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('casenumber', caseNumber);
+        window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    } catch (error) {}
+}
+
+function clearCaseNumberFromUrl() {
+    if (typeof window === 'undefined' || !window.history || !window.history.replaceState) {
+        return;
+    }
+
+    try {
+        const url = new URL(window.location.href);
+        ['casenumber', 'caseNumber', 'case', 'reference', 'ref'].forEach((key) => url.searchParams.delete(key));
+        const query = url.searchParams.toString();
+        window.history.replaceState({}, '', `${url.pathname}${query ? `?${query}` : ''}${url.hash}`);
+    } catch (error) {}
+}
+
+const TEXT = {
+    en: {
+        heroTitle: 'Do you need help?',
+        trackStepOne: 'Reference',
+        trackStepTwo: 'Status',
+        trackStepThree: 'Follow-up',
+        back: 'Back',
+        kicker: 'Complaint follow-up',
+        title: 'Track your complaint',
+        subtitle: 'Enter the reference number provided after submission to view the current status of your request.',
+        formTitle: 'Find your request',
+        formHelp: 'Use the reference number shown on the confirmation page, for example 00001054.',
+        caseNumber: 'Complaint reference',
+        caseNumberPlaceholder: 'Example: 00001054',
+        search: 'Search',
+        searching: 'Searching...',
+        required: 'Please enter your complaint reference.',
+        invalid: 'Please enter a valid numeric complaint reference.',
+        resultTitle: 'Complaint status',
+        yourCasePrefix: 'Your complaint number',
+        statusMiddle: 'is currently in status',
+        descriptionLabel: 'Description',
+        noDescription: 'No description is available at the moment.',
+        notFoundTitle: 'No complaint found',
+        notFoundMessage: 'We could not find a complaint with this reference. Please check the number and try again.',
+        searchAgain: 'Search again',
+        backToComplaintPage: 'Back to main page',
+        reopenComplaint: 'Reopen complaint',
+        reopenDisabledHelp: 'This option is not available yet.',
+        technicalError: 'A technical error occurred while checking the complaint. Please try again later.',
+        errorTitle: 'Unable to track complaint',
+        ok: 'OK'
+    },
+    fr: {
+        heroTitle: 'Besoin d’aide ?',
+        trackStepOne: 'Référence',
+        trackStepTwo: 'Statut',
+        trackStepThree: 'Suivi',
+        back: 'Retour',
+        kicker: 'Suivi de réclamation',
+        title: 'Suivre votre réclamation',
+        subtitle: 'Saisissez la référence fournie après la soumission pour consulter le statut actuel de votre demande.',
+        formTitle: 'Rechercher votre demande',
+        formHelp: 'Utilisez la référence affichée sur la page de confirmation, par exemple 00001054.',
+        caseNumber: 'Référence de réclamation',
+        caseNumberPlaceholder: 'Exemple : 00001054',
+        search: 'Rechercher',
+        searching: 'Recherche...',
+        required: 'Veuillez saisir votre référence de réclamation.',
+        invalid: 'Veuillez saisir une référence numérique valide.',
+        resultTitle: 'Statut de la réclamation',
+        yourCasePrefix: 'Votre réclamation numéro',
+        statusMiddle: 'est actuellement au statut',
+        descriptionLabel: 'Description',
+        noDescription: 'Aucune description n’est disponible pour le moment.',
+        notFoundTitle: 'Aucune réclamation trouvée',
+        notFoundMessage: 'Aucune réclamation ne correspond à cette référence. Veuillez vérifier le numéro puis réessayer.',
+        searchAgain: 'Nouvelle recherche',
+        backToComplaintPage: 'Retour à la page principale',
+        reopenComplaint: 'Rouvrir la réclamation',
+        reopenDisabledHelp: 'Cette option n’est pas encore disponible.',
+        technicalError: 'Une erreur technique est survenue pendant la vérification. Veuillez réessayer plus tard.',
+        errorTitle: 'Suivi indisponible',
+        ok: 'OK'
+    },
+    ar: {
+        heroTitle: 'هل تحتاج إلى مساعدة؟',
+        trackStepOne: 'المرجع',
+        trackStepTwo: 'الحالة',
+        trackStepThree: 'المتابعة',
+        back: 'رجوع',
+        kicker: 'متابعة الشكوى',
+        title: 'تتبع الشكوى',
+        subtitle: 'أدخل رقم المرجع الذي تم تقديمه بعد الإرسال لمعرفة الحالة الحالية لطلبك.',
+        formTitle: 'البحث عن الطلب',
+        formHelp: 'استخدم رقم المرجع الظاهر في صفحة التأكيد، مثال 00001054.',
+        caseNumber: 'مرجع الشكوى',
+        caseNumberPlaceholder: 'مثال: 00001054',
+        search: 'بحث',
+        searching: 'جاري البحث...',
+        required: 'يرجى إدخال مرجع الشكوى.',
+        invalid: 'يرجى إدخال مرجع رقمي صحيح.',
+        resultTitle: 'حالة الشكوى',
+        yourCasePrefix: 'رقم الشكوى',
+        statusMiddle: 'حالتها الحالية هي',
+        descriptionLabel: 'الوصف',
+        noDescription: 'لا يوجد وصف متاح حالياً.',
+        notFoundTitle: 'لم يتم العثور على شكوى',
+        notFoundMessage: 'لم نتمكن من العثور على شكوى بهذا المرجع. يرجى التحقق من الرقم والمحاولة مرة أخرى.',
+        searchAgain: 'بحث جديد',
+        backToComplaintPage: 'العودة إلى الصفحة الرئيسية',
+        reopenComplaint: 'إعادة فتح الشكوى',
+        reopenDisabledHelp: 'هذا الخيار غير متاح حالياً.',
+        technicalError: 'حدث خطأ تقني أثناء التحقق من الشكوى. يرجى المحاولة لاحقاً.',
+        errorTitle: 'تعذر تتبع الشكوى',
+        ok: 'موافق'
+    }
+};
+
+export default class EDolTrackComplaint extends LightningElement {
+    @api complaintPageUrl = '/';
+
+    selectedLanguage = 'en';
+    caseNumber = '';
+    caseNumberError = '';
+    isLoading = false;
+    result = null;
+    errorMessage = '';
+    errorModalOpen = false;
+
+    get labels() {
+        return TEXT[this.selectedLanguage] || TEXT.en;
+    }
+
+    get pageClass() {
+        return this.selectedLanguage === 'ar' ? 'trackPage categoryPage edol-force-rtl' : 'trackPage categoryPage edol-force-ltr';
+    }
+
+    get heroBackgroundStyle() {
+        return `background-image: linear-gradient(90deg, rgba(255,255,225,.14), rgba(218,245,250,.08)), url(${heroBackground});`;
+    }
+
+    get submitLabel() {
+        return this.isLoading ? this.labels.searching : this.labels.search;
+    }
+
+    get caseNumberFieldClass() {
+        return this.caseNumberError ? 'edol-field edol-field-error' : 'edol-field';
+    }
+
+    get hasResult() {
+        return this.result !== null;
+    }
+
+    get trackingFound() {
+        return this.result && this.result.found === true;
+    }
+
+    get referenceStepClass() {
+        if (this.trackingFound) {
+            return 'progressStep completed';
+        }
+        return 'progressStep active';
+    }
+
+    get statusStepClass() {
+        if (this.trackingFound) {
+            return 'progressStep active';
+        }
+        if (this.hasResult) {
+            return 'progressStep completed';
+        }
+        return 'progressStep';
+    }
+
+    get followUpStepClass() {
+        return 'progressStep';
+    }
+
+    get resultDescription() {
+        return this.result && this.result.description ? this.result.description : this.labels.noDescription;
+    }
+
+    connectedCallback() {
+        const initialLanguage = getInitialLanguage();
+        this.selectedLanguage = TEXT[initialLanguage] ? initialLanguage : 'en';
+
+        const urlCaseNumber = getCaseNumberFromUrl();
+        if (urlCaseNumber) {
+            this.caseNumber = urlCaseNumber;
+            window.setTimeout(() => {
+                this.handleSubmit({ preventDefault() {} });
+            }, 0);
+        }
+    }
+
+    handleLanguageChange(event) {
+        const language = event.detail && event.detail.language ? event.detail.language : 'en';
+        this.selectedLanguage = TEXT[language] ? language : 'en';
+        try {
+            window.localStorage.setItem('edolLanguage', this.selectedLanguage);
+        } catch (error) {}
+    }
+
+    handleCaseNumberChange(event) {
+        this.caseNumber = (event.target.value || '').replace(/\D/g, '').slice(0, 12);
+        event.target.value = this.caseNumber;
+        this.caseNumberError = '';
+    }
+
+    validate() {
+        const value = (this.caseNumber || '').trim();
+        if (!value) {
+            this.caseNumberError = this.labels.required;
+            this.scrollToField();
+            return false;
+        }
+        if (!/^\d{4,12}$/.test(value)) {
+            this.caseNumberError = this.labels.invalid;
+            this.scrollToField();
+            return false;
+        }
+        this.caseNumberError = '';
+        return true;
+    }
+
+    scrollToField() {
+        window.setTimeout(() => {
+            const field = this.template.querySelector('.edol-field-error');
+            if (field) {
+                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 0);
+    }
+
+    async handleSubmit(event) {
+        event.preventDefault();
+        if (!this.validate() || this.isLoading) {
+            return;
+        }
+
+        this.isLoading = true;
+        this.result = null;
+        setCaseNumberInUrl(this.caseNumber);
+
+        try {
+            const response = await trackComplaint({ caseNumber: this.caseNumber });
+            this.result = response;
+            setCaseNumberInUrl(this.caseNumber);
+        } catch (error) {
+            this.showError(this.extractErrorMessage(error));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    extractErrorMessage(error) {
+        if (error && error.body && error.body.message) {
+            return error.body.message;
+        }
+        if (error && error.message) {
+            return error.message;
+        }
+        return this.labels.technicalError;
+    }
+
+    showError(message) {
+        this.errorMessage = message || this.labels.technicalError;
+        this.errorModalOpen = true;
+    }
+
+    closeError() {
+        this.errorMessage = '';
+        this.errorModalOpen = false;
+    }
+
+    resetSearch() {
+        this.result = null;
+        this.caseNumberError = '';
+        clearCaseNumberFromUrl();
+        window.setTimeout(() => {
+            const input = this.template.querySelector('input[name="caseNumber"]');
+            if (input) {
+                input.focus();
+            }
+        }, 0);
+    }
+
+    goBack() {
+        window.location.assign(buildCommunityUrl(this.complaintPageUrl || '/'));
+    }
+}

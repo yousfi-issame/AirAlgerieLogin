@@ -1,0 +1,34 @@
+<template>
+    <main class="edol-page formPage edol-force-ltr">
+        <c-e-dol-portal-header selected-language={selectedLanguage} onlanguagechange={handleLanguageChange}></c-e-dol-portal-header>
+        <c-e-dol-hero selected-language={selectedLanguage}></c-e-dol-hero>
+
+        <section class="formContent">
+            <c-e-dol-progress-path current-step={currentStep} step-one-label={text.stepOne} step-two-label={text.stepTwo} step-three-label={text.stepThree}></c-e-dol-progress-path>
+
+            <template if:false={completionMode}>
+                <div class="quickPreviewHeader">
+                    <a class="backButton" href={resolvedBackUrl} onclick={handleBackClick}>{text.back}</a>
+                    <div class="quickPreviewCopy">
+                        <h1>{text.quickPreview}</h1>
+                        <p>{text.browseSubtitle}</p>
+                    </div>
+                </div>
+
+                <div class="previewCard formPreviewCard">
+                    <c-e-dol-category-card category={category} open-label="" disable-hover="true"></c-e-dol-category-card>
+                </div>
+            </template>
+
+            <section class={cardClass}>
+                <template if:false={completionMode}>
+                    <div class="infoBox">
+                        <p>{text.infoText}</p>
+                        <span>Info</span>
+                    </div>
+                </template>
+                <slot></slot>
+            </section>
+        </section>
+    </main>
+</template>

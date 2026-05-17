@@ -1,0 +1,123 @@
+import { LightningElement, api } from 'lwc';
+
+const MAX_FILES = 3;
+const MAX_FILE_SIZE_BYTES = 4500000;
+
+function makeKey(file) {
+    return `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result || '';
+            const base64Data = String(result).includes(',') ? String(result).split(',')[1] : String(result);
+            resolve(base64Data);
+        };
+        reader.onerror = () => reject(reader.error || new Error('Unable to read file.'));
+        reader.readAsDataURL(file);
+    });
+}
+
+export default class EDolFileUpload extends LightningElement {
+    @api label = 'Click to Upload';
+    @api helperText = '';
+    @api limitMessage = 'Image must be smaller than 3 files.';
+    @api cancelLabel = 'Cancel';
+    @api okLabel = 'OK';
+    @api acceptedFormats = '.jpg,.jpeg,.png,.pdf,.doc,.docx';
+
+    files = [];
+    showLimitDialog = false;
+    isReadingFiles = false;
+
+    get hasFiles() {
+        return this.files.length > 0;
+    }
+
+    openFilePicker() {
+        const input = this.template.querySelector('.hiddenFileInput');
+        if (input) {
+            input.click();
+        }
+    }
+
+    async handleFileChange(event) {
+        const selectedFiles = Array.from(event.target.files || []);
+        event.target.value = '';
+
+        if (!selectedFiles.length) {
+            return;
+        }
+
+        if (this.files.length + selectedFiles.length > MAX_FILES) {
+            this.showLimitDialog = true;
+            return;
+        }
+
+        if (selectedFiles.some((file) => file.size > MAX_FILE_SIZE_BYTES)) {
+            this.showLimitDialog = true;
+            return;
+        }
+
+        this.isReadingFiles = true;
+        try {
+            const mappedFiles = await Promise.all(selectedFiles.map(async (file) => {
+                const isImage = file.type && file.type.startsWith('image/');
+                return {
+                    key: makeKey(file),
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    base64Data: await readFileAsBase64(file),
+                    isImage,
+                    previewUrl: isImage ? URL.createObjectURL(file) : ''
+                };
+            }));
+
+            this.files = [...this.files, ...mappedFiles];
+            this.notifyChange();
+        } catch (error) {
+            this.showLimitDialog = true;
+        }
+        this.isReadingFiles = false;
+    }
+
+    removeFile(event) {
+        const key = event.currentTarget.dataset.key;
+        const removed = this.files.find((file) => file.key === key);
+        if (removed && removed.previewUrl) {
+            URL.revokeObjectURL(removed.previewUrl);
+        }
+        this.files = this.files.filter((file) => file.key !== key);
+        this.notifyChange();
+    }
+
+    closeLimitDialog() {
+        this.showLimitDialog = false;
+    }
+
+    notifyChange() {
+        this.dispatchEvent(new CustomEvent('filesuploaded', {
+            detail: {
+                files: this.files.map((file) => ({
+                    fileName: file.name,
+                    contentType: file.type,
+                    size: file.size,
+                    base64Data: file.base64Data
+                }))
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    disconnectedCallback() {
+        this.files.forEach((file) => {
+            if (file.previewUrl) {
+                URL.revokeObjectURL(file.previewUrl);
+            }
+        });
+    }
+}

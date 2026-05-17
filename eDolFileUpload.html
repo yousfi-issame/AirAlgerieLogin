@@ -1,0 +1,58 @@
+import { LightningElement, api } from 'lwc';
+import basePath from '@salesforce/community/basePath';
+import { getCategory, getText } from 'c/eDolFormData';
+
+function buildCommunityUrl(path) {
+    if (!path || path === '/') {
+        return basePath || '/';
+    }
+    if (/^https?:\/\//i.test(path)) {
+        return path;
+    }
+
+    const cleanBase = basePath && basePath !== '/' ? basePath.replace(/\/$/, '') : '';
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+    if (cleanBase && (cleanPath === cleanBase || cleanPath.startsWith(`${cleanBase}/`))) {
+        return cleanPath;
+    }
+
+    return `${cleanBase}${cleanPath}` || '/';
+}
+
+export default class EDolFormShell extends LightningElement {
+    @api selectedLanguage = 'en';
+    @api categoryId;
+    @api backUrl = '/forms';
+    @api currentStep = '2';
+    @api completionMode = false;
+
+    get text() {
+        return getText(this.selectedLanguage);
+    }
+
+    get category() {
+        return getCategory(this.categoryId, this.selectedLanguage) || {};
+    }
+
+    get resolvedBackUrl() {
+        return buildCommunityUrl(this.backUrl || '/forms');
+    }
+
+    get cardClass() {
+        return this.completionMode ? 'edol-form-card edol-completion-card-wrap' : 'edol-form-card';
+    }
+
+    handleLanguageChange(event) {
+        this.dispatchEvent(new CustomEvent('languagechange', {
+            detail: { language: event.detail.language },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    handleBackClick(event) {
+        event.preventDefault();
+        window.location.assign(this.resolvedBackUrl);
+    }
+}

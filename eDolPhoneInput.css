@@ -1,0 +1,135 @@
+@import 'c/eDolDesign';
+
+:host {
+    display: block;
+    position: relative;
+    z-index: 10000;
+    pointer-events: auto;
+}
+
+.edolLang {
+    position: relative;
+    display: inline-block;
+    font-family: var(--edol-font-family, ui-sans-serif, system-ui, sans-serif);
+    pointer-events: auto;
+}
+
+.edolLang__button {
+    min-width: auto;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1;
+    box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.16s ease, color 0.16s ease;
+}
+
+.edolLang__button:hover,
+.edolLang__button:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.18);
+    color: #111827;
+    box-shadow: none;
+}
+
+.edolLang__flag,
+.edolLang__optionFlag {
+    width: 22px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 1px;
+    flex: 0 0 auto;
+    box-shadow: none;
+}
+
+.edolLang__text,
+.edolLang__optionLabel {
+    white-space: nowrap;
+}
+
+.edolLang__text {
+    font-size: 14px;
+    font-weight: 400;
+    color: #1f2937;
+}
+
+.edolLang__chevron {
+    color: #7c8797;
+    font-size: 12px;
+    line-height: 1;
+    margin-left: 0;
+    transform: translateY(-1px);
+}
+
+.edolLang__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 142px;
+    padding: 6px;
+    border: 0;
+    border-radius: 9px;
+    background: #ffffff;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+    z-index: 10001;
+    pointer-events: auto;
+}
+
+.edolLang__option {
+    width: 100%;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.edolLang__option:hover,
+.edolLang__option:focus,
+.edolLang__option--active {
+    outline: none;
+    background: rgba(236, 28, 36, 0.08);
+    color: #111827;
+}
+
+.edolLang__option--active {
+    font-weight: 500;
+}
+
+@media (max-width: 720px) {
+    .edolLang__button {
+        height: 28px;
+        gap: 5px;
+        font-size: 13px;
+    }
+
+    .edolLang__text {
+        font-size: 13px;
+    }
+
+    .edolLang__flag,
+    .edolLang__optionFlag {
+        width: 20px;
+        height: 14px;
+    }
+}

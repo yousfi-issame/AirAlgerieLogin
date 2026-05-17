@@ -1,0 +1,8 @@
+<template>
+    <header class="portalHeader edol-force-ltr">
+        <a class="logoWrap" href={resolvedHomeUrl} target="_self" aria-label="Air Algérie home" onclick={handleLogoClick}>
+            <img class="logo" src={logoUrl} alt="Air Algérie" />
+        </a>
+        <c-e-dol-language-selector selected-language={selectedLanguage} onlanguagechange={handleLanguageChange}></c-e-dol-language-selector>
+    </header>
+</template>

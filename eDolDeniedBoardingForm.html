@@ -1,0 +1,73 @@
+<template>
+    <div class="edol-date-picker">
+        <div class={controlClass} onclick={openCalendar}>
+            <input
+                class="edol-date-display"
+                type="text"
+                name={name}
+                value={displayValue}
+                placeholder={placeholder}
+                readonly
+                aria-label={ariaLabel}
+                onclick={openCalendar}
+                onfocus={openCalendar}
+                disabled={disabled}
+            />
+            <button class="edol-date-toggle" type="button" onclick={toggleCalendar} disabled={disabled} aria-label={toggleLabel}>
+                <span aria-hidden="true">▾</span>
+            </button>
+        </div>
+
+        <template if:true={isOpen}>
+            <section class="edol-calendar" role="dialog" aria-label={calendarLabel} onclick={stopClick}>
+                <div class="edol-calendar-header">
+                    <button class="edol-nav" type="button" onclick={previousMonth} aria-label={previousLabel}>‹</button>
+
+                    <div class="edol-calendar-title-controls">
+                        <select class="edol-calendar-month" onchange={handleMonthChange} onclick={stopClick} aria-label="Select month">
+                            <template for:each={monthOptions} for:item="month">
+                                <option key={month.value} value={month.value}>{month.label}</option>
+                            </template>
+                        </select>
+
+                        <select class="edol-calendar-year" onchange={handleYearChange} onclick={stopClick} aria-label="Select year">
+                            <template for:each={yearOptions} for:item="year">
+                                <option key={year.value} value={year.value}>{year.label}</option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <button class="edol-nav" type="button" onclick={nextMonth} aria-label={nextLabel}>›</button>
+                </div>
+
+                <div class="edol-weekdays" aria-hidden="true">
+                    <template for:each={weekdayLabels} for:item="day">
+                        <span key={day}>{day}</span>
+                    </template>
+                </div>
+
+                <div class="edol-days">
+                    <template for:each={calendarDays} for:item="day">
+                        <button
+                            key={day.key}
+                            class={day.className}
+                            type="button"
+                            data-date={day.iso}
+                            disabled={day.disabled}
+                            onclick={selectDate}
+                            title={day.title}
+                        >
+                            {day.label}
+                        </button>
+                    </template>
+                </div>
+
+                <div class="edol-calendar-footer">
+                    <button class="edol-footer-button" type="button" onclick={selectToday} disabled={todayButtonDisabled}>
+                        Today
+                    </button>
+                </div>
+            </section>
+        </template>
+    </div>
+</template>

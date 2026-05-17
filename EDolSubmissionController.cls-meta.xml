@@ -1,0 +1,983 @@
+public without sharing class EDolSubmissionController {
+    private static final String DEFAULT_ORIGIN = 'E-DOL';
+    private static final String DEFAULT_CUSTOMER_SOURCE = 'E-DOL';
+
+    @AuraEnabled
+    public static SubmissionResult submitComplaint(SubmissionRequest request) {
+        try {
+            validateRequest(request);
+
+            Map<String, Object> values = request.values == null ? new Map<String, Object>() : request.values;
+            Account accountRecord = findOrCreatePersonAccount(values, request.language);
+            Id contactId = getPersonContactId(accountRecord.Id);
+
+            Case caseRecord = buildCase(request, values, accountRecord.Id, contactId);
+            insert caseRecord;
+
+            createTickets(request.tickets, caseRecord.Id, accountRecord.Id);
+            uploadFiles(request.files, caseRecord.Id);
+
+            Case createdCase = [
+                SELECT Id, CaseNumber
+                FROM Case
+                WHERE Id = :caseRecord.Id
+                LIMIT 1
+            ];
+
+            SubmissionResult result = new SubmissionResult();
+            result.success = true;
+            result.accountId = accountRecord.Id;
+            result.contactId = contactId;
+            result.caseId = createdCase.Id;
+            result.caseNumber = createdCase.CaseNumber;
+            return result;
+        } catch (AuraHandledException handledError) {
+            throw handledError;
+        } catch (Exception error) {
+            throw new AuraHandledException('Unable to submit the complaint: ' + error.getMessage());
+        }
+    }
+
+
+    @AuraEnabled(cacheable=false)
+    public static AccountPrefillResult findPersonAccountForPrefill(String email, String mobilePhone) {
+        try {
+            AccountPrefillResult result = new AccountPrefillResult();
+            String normalizedEmail = normalizeEmail(email);
+            String normalizedPhone = normalizePhone(mobilePhone);
+
+            if (isBlank(normalizedEmail) || isBlank(normalizedPhone)) {
+                result.found = false;
+                result.values = new Map<String, Object>();
+                return result;
+            }
+
+            Account accountRecord = findExistingPersonAccount(normalizedEmail, normalizedPhone);
+            if (accountRecord == null) {
+                result.found = false;
+                result.values = new Map<String, Object>{
+                    'email' => normalizedEmail,
+                    'confirmEmail' => normalizedEmail,
+                    'mobilePhone' => normalizedPhone
+                };
+                return result;
+            }
+
+            result.found = true;
+            result.accountId = accountRecord.Id;
+            result.values = buildPrefillValues(accountRecord, normalizedEmail, normalizedPhone);
+            return result;
+        } catch (AuraHandledException handledError) {
+            throw handledError;
+        } catch (Exception error) {
+            throw new AuraHandledException('Unable to search the customer information: ' + error.getMessage());
+        }
+    }
+
+    private static void validateRequest(SubmissionRequest request) {
+        if (request == null) {
+            throw new AuraHandledException('Missing submission data.');
+        }
+        if (request.captchaVerified != true) {
+            throw new AuraHandledException('Captcha verification is required.');
+        }
+        if (request.values == null) {
+            throw new AuraHandledException('Missing form values.');
+        }
+
+        List<String> requiredFields = new List<String>{ 'firstName', 'lastName', 'email', 'mobilePhone' };
+        for (String fieldName : requiredFields) {
+            if (isBlank(str(request.values.get(fieldName)))) {
+                throw new AuraHandledException('Missing required field: ' + fieldName);
+            }
+        }
+
+        if (!isTrue(request.values.get('consentAccepted'))) {
+            throw new AuraHandledException('Personal data consent is required.');
+        }
+    }
+
+    private static Account findOrCreatePersonAccount(Map<String, Object> values, String submittedLanguage) {
+        String email = normalizeEmail(str(values.get('email')));
+        String mobilePhone = normalizePhone(str(values.get('mobilePhone')));
+
+        Account existingAccount = findExistingPersonAccount(email, mobilePhone);
+        if (existingAccount != null) {
+            // Existing Person Accounts are reused only.
+            // We intentionally do not update account master data from the public form.
+            return existingAccount;
+        }
+
+        Account accountRecord = new Account();
+        accountRecord.RecordTypeId = getPersonAccountRecordTypeId();
+        applyAccountFormValues(accountRecord, values, submittedLanguage, true);
+
+        Database.SaveResult saveResult = Database.insert(accountRecord, false);
+        if (!saveResult.isSuccess()) {
+            String message = collectErrors(saveResult.getErrors());
+            throw new AuraHandledException('Unable to create Person Account: ' + message);
+        }
+
+        return [
+            SELECT Id
+            FROM Account
+            WHERE Id = :saveResult.getId()
+            LIMIT 1
+        ];
+    }
+
+    private static Account findExistingPersonAccount(String email, String mobilePhone) {
+        if (isBlank(email) || isBlank(mobilePhone)) {
+            return null;
+        }
+
+        List<String> selectFields = new List<String>{ 'Id' };
+        Map<String, Schema.SObjectField> accountFields = Account.SObjectType.getDescribe().fields.getMap();
+        if (accountFields.containsKey('PersonContactId')) {
+            selectFields.add('PersonContactId');
+        }
+        if (accountFields.containsKey('PersonEmail')) {
+            selectFields.add('PersonEmail');
+        }
+        if (accountFields.containsKey('PersonMobilePhone')) {
+            selectFields.add('PersonMobilePhone');
+        }
+        if (accountFields.containsKey('Phone')) {
+            selectFields.add('Phone');
+        }
+        if (accountFields.containsKey('PersonBirthdate')) {
+            selectFields.add('PersonBirthdate');
+        }
+        if (accountFields.containsKey('Languages__pc')) {
+            selectFields.add('Languages__pc');
+        }
+        if (accountFields.containsKey('Customer_Source__pc')) {
+            selectFields.add('Customer_Source__pc');
+        }
+        if (accountFields.containsKey('Customer_Source__c')) {
+            selectFields.add('Customer_Source__c');
+        }
+        if (accountFields.containsKey('FirstName')) {
+            selectFields.add('FirstName');
+        }
+        if (accountFields.containsKey('LastName')) {
+            selectFields.add('LastName');
+        }
+        if (accountFields.containsKey('PersonTitle')) {
+            selectFields.add('PersonTitle');
+        }
+        if (accountFields.containsKey('PersonMailingStreet')) {
+            selectFields.add('PersonMailingStreet');
+        }
+        if (accountFields.containsKey('PersonMailingPostalCode')) {
+            selectFields.add('PersonMailingPostalCode');
+        }
+        if (accountFields.containsKey('PersonMailingState')) {
+            selectFields.add('PersonMailingState');
+        }
+        if (accountFields.containsKey('PersonMailingCountry')) {
+            selectFields.add('PersonMailingCountry');
+        }
+        if (accountFields.containsKey('BillingStreet')) {
+            selectFields.add('BillingStreet');
+        }
+        if (accountFields.containsKey('BillingPostalCode')) {
+            selectFields.add('BillingPostalCode');
+        }
+        if (accountFields.containsKey('BillingState')) {
+            selectFields.add('BillingState');
+        }
+        if (accountFields.containsKey('BillingCountry')) {
+            selectFields.add('BillingCountry');
+        }
+
+        String query = 'SELECT ' + String.join(selectFields, ',') +
+            ' FROM Account WHERE IsPersonAccount = true AND PersonEmail = :email AND PersonMobilePhone = :mobilePhone LIMIT 1';
+        List<SObject> rows = Database.query(query);
+        if (rows.isEmpty()) {
+            return null;
+        }
+        return (Account) rows[0];
+    }
+
+
+    private static Map<String, Object> buildPrefillValues(Account accountRecord, String fallbackEmail, String fallbackPhone) {
+        Map<String, Object> values = new Map<String, Object>();
+
+        String email = firstNonBlank(new List<String>{ str(accountRecord.get('PersonEmail')), fallbackEmail });
+        String mobilePhone = firstNonBlank(new List<String>{ str(accountRecord.get('PersonMobilePhone')), fallbackPhone });
+        String landlinePhone = firstNonBlank(new List<String>{ str(accountRecord.get('Phone')) });
+        String countryName = firstNonBlank(new List<String>{ str(accountRecord.get('PersonMailingCountry')), str(accountRecord.get('BillingCountry')) });
+        String regionName = firstNonBlank(new List<String>{ str(accountRecord.get('PersonMailingState')), str(accountRecord.get('BillingState')) });
+
+        values.put('firstName', str(accountRecord.get('FirstName')));
+        values.put('lastName', str(accountRecord.get('LastName')));
+        values.put('email', email);
+        values.put('confirmEmail', email);
+        values.put('mobilePhone', mobilePhone);
+        values.put('landlinePhone', landlinePhone);
+        values.put('civility', mapTitleToCivility(str(accountRecord.get('PersonTitle'))));
+        values.put('dateOfBirth', accountRecord.get('PersonBirthdate') == null ? null : String.valueOf(accountRecord.get('PersonBirthdate')));
+        values.put('countryOfResidence', mapCountryCodeFromName(countryName));
+        values.put('regionOfResidence', mapRegionCodeFromName(regionName));
+        values.put('addressOfResidence', firstNonBlank(new List<String>{ str(accountRecord.get('PersonMailingStreet')), str(accountRecord.get('BillingStreet')) }));
+        values.put('postalCode', firstNonBlank(new List<String>{ str(accountRecord.get('PersonMailingPostalCode')), str(accountRecord.get('BillingPostalCode')) }));
+        return values;
+    }
+
+    private static String mapTitleToCivility(String title) {
+        if (isBlank(title)) {
+            return null;
+        }
+        String normalized = title.trim().toLowerCase();
+        if (normalized == 'mr' || normalized == 'mr.' || normalized == 'monsieur') {
+            return 'mr';
+        }
+        if (normalized == 'mrs' || normalized == 'mrs.' || normalized == 'madame' || normalized == 'ms' || normalized == 'ms.') {
+            return 'mrs';
+        }
+        return null;
+    }
+
+    private static String mapCountryCodeFromName(String countryName) {
+        if (isBlank(countryName)) {
+            return null;
+        }
+        String normalized = countryName.trim().toLowerCase();
+        Map<String, String> values = new Map<String, String>{
+            'algeria' => 'DZ',
+            'algérie' => 'DZ',
+            'الجزائر' => 'DZ',
+            'france' => 'FR',
+            'canada' => 'CA',
+            'united kingdom' => 'GB',
+            'royaume-uni' => 'GB',
+            'spain' => 'ES',
+            'espagne' => 'ES',
+            'italy' => 'IT',
+            'italie' => 'IT',
+            'germany' => 'DE',
+            'allemagne' => 'DE',
+            'belgium' => 'BE',
+            'belgique' => 'BE',
+            'switzerland' => 'CH',
+            'suisse' => 'CH',
+            'turkey' => 'TR',
+            'turquie' => 'TR',
+            'united arab emirates' => 'AE',
+            'emirats arabes unis' => 'AE',
+            'saudi arabia' => 'SA',
+            'arabie saoudite' => 'SA',
+            'qatar' => 'QA',
+            'tunisia' => 'TN',
+            'tunisie' => 'TN',
+            'morocco' => 'MA',
+            'maroc' => 'MA',
+            'egypt' => 'EG',
+            'egypte' => 'EG',
+            'other' => 'OTHER',
+            'autre' => 'OTHER'
+        };
+        return values.containsKey(normalized) ? values.get(normalized) : 'OTHER';
+    }
+
+    private static String mapRegionCodeFromName(String regionName) {
+        if (isBlank(regionName)) {
+            return null;
+        }
+        String normalized = regionName.trim().toLowerCase();
+        Map<String, String> regions = new Map<String, String>{
+            'adrar' => 'DZ-01', 'chlef' => 'DZ-02', 'laghouat' => 'DZ-03', 'oum el bouaghi' => 'DZ-04', 'batna' => 'DZ-05',
+            'béjaïa' => 'DZ-06', 'bejaia' => 'DZ-06', 'biskra' => 'DZ-07', 'béchar' => 'DZ-08', 'bechar' => 'DZ-08',
+            'blida' => 'DZ-09', 'bouira' => 'DZ-10', 'tamanrasset' => 'DZ-11', 'tébessa' => 'DZ-12', 'tebessa' => 'DZ-12',
+            'tlemcen' => 'DZ-13', 'tiaret' => 'DZ-14', 'tizi ouzou' => 'DZ-15', 'algiers' => 'DZ-16', 'alger' => 'DZ-16', 'الجزائر' => 'DZ-16',
+            'djelfa' => 'DZ-17', 'jijel' => 'DZ-18', 'sétif' => 'DZ-19', 'setif' => 'DZ-19', 'saïda' => 'DZ-20', 'saida' => 'DZ-20',
+            'skikda' => 'DZ-21', 'sidi bel abbès' => 'DZ-22', 'sidi bel abbes' => 'DZ-22', 'annaba' => 'DZ-23', 'guelma' => 'DZ-24',
+            'constantine' => 'DZ-25', 'médéa' => 'DZ-26', 'medea' => 'DZ-26', 'mostaganem' => 'DZ-27', 'm’sila' => 'DZ-28', 'm\'sila' => 'DZ-28', 'msila' => 'DZ-28',
+            'mascara' => 'DZ-29', 'ouargla' => 'DZ-30', 'oran' => 'DZ-31', 'el bayadh' => 'DZ-32', 'illizi' => 'DZ-33',
+            'bordj bou arréridj' => 'DZ-34', 'bordj bou arreridj' => 'DZ-34', 'boumerdès' => 'DZ-35', 'boumerdes' => 'DZ-35', 'el tarf' => 'DZ-36',
+            'tindouf' => 'DZ-37', 'tissemsilt' => 'DZ-38', 'el oued' => 'DZ-39', 'khenchela' => 'DZ-40', 'souk ahras' => 'DZ-41',
+            'tipaza' => 'DZ-42', 'mila' => 'DZ-43', 'aïn defla' => 'DZ-44', 'ain defla' => 'DZ-44', 'naâma' => 'DZ-45', 'naama' => 'DZ-45',
+            'aïn témouchent' => 'DZ-46', 'ain temouchent' => 'DZ-46', 'ghardaïa' => 'DZ-47', 'ghardaia' => 'DZ-47', 'relizane' => 'DZ-48',
+            'timimoun' => 'DZ-49', 'bordj badji mokhtar' => 'DZ-50', 'ouled djellal' => 'DZ-51', 'béni abbès' => 'DZ-52', 'beni abbes' => 'DZ-52',
+            'in salah' => 'DZ-53', 'in guezzam' => 'DZ-54', 'touggourt' => 'DZ-55', 'djanet' => 'DZ-56', 'el m’ghair' => 'DZ-57', 'el mghair' => 'DZ-57', 'el meniaa' => 'DZ-58',
+            'other' => 'OTHER', 'autre' => 'OTHER'
+        };
+        return regions.containsKey(normalized) ? regions.get(normalized) : 'OTHER';
+    }
+
+    private static String firstNonBlank(List<String> values) {
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            if (!isBlank(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private static Id getPersonAccountRecordTypeId() {
+        List<SObject> rows = Database.query(
+            'SELECT Id FROM RecordType WHERE SObjectType = \'Account\' AND IsPersonType = true LIMIT 1'
+        );
+        if (rows.isEmpty()) {
+            throw new AuraHandledException('No Person Account record type was found. Please enable/configure Person Accounts first.');
+        }
+        return (Id) rows[0].get('Id');
+    }
+
+    private static Id getPersonContactId(Id accountId) {
+        if (accountId == null || !Account.SObjectType.getDescribe().fields.getMap().containsKey('PersonContactId')) {
+            return null;
+        }
+        List<SObject> rows = Database.query('SELECT PersonContactId FROM Account WHERE Id = :accountId LIMIT 1');
+        if (rows.isEmpty()) {
+            return null;
+        }
+        return (Id) rows[0].get('PersonContactId');
+    }
+
+    private static Case buildCase(SubmissionRequest request, Map<String, Object> values, Id accountId, Id contactId) {
+        String category = mapCategory(request.categoryId);
+        String subcategory = mapSubcategory(request.categoryId, str(values.get('reason')), str(values.get('ticketPurchaseChannel')));
+        String submittedLanguage = toSalesforceLanguage(request.language);
+        String submittedCountry = mapCountry(str(values.get('countryOfResidence')));
+        String fullName = buildFullName(str(values.get('firstName')), str(values.get('lastName')));
+
+        Case caseRecord = new Case();
+        caseRecord.AccountId = accountId;
+        if (contactId != null) {
+            caseRecord.ContactId = contactId;
+        }
+        caseRecord.Origin = DEFAULT_ORIGIN;
+        caseRecord.Subject = buildSubject(fullName, category);
+        caseRecord.Description = truncate(str(values.get('details')), 32000);
+
+        setPicklistIfValid(caseRecord, 'Complaint_Category__c', category, 'Other');
+        setPicklistIfValid(caseRecord, 'Complaint_Subcategory__c', subcategory, 'Other');
+        setPicklistIfValid(caseRecord, 'Submitted_Language__c', submittedLanguage, null);
+        setPicklistIfValid(caseRecord, 'Submitted_Country__c', submittedCountry, 'Other');
+        setPicklistIfValid(caseRecord, 'Region_of_residence__c', mapRegion(str(values.get('regionOfResidence'))), 'Other');
+
+        setPicklistIfValid(caseRecord, 'Business_Routing__c', mapBusinessRouting(request.categoryId), 'Other');
+        setPicklistIfValid(caseRecord, 'Region_Routing__c', mapRegion(str(values.get('regionOfResidence'))), 'Other');
+        setPicklistIfValid(caseRecord, 'Routing_Mode__c', mapRoutingMode(request.categoryId, str(values.get('regionOfResidence'))), null);
+        setPicklistIfValid(caseRecord, 'Claimant_Type__c', mapClaimantType(str(values.get('claimantType'))), null);
+
+        setIfFieldExists(caseRecord, 'Captcha_Verified__c', request.captchaVerified == true);
+        setIfFieldExists(caseRecord, 'Consent_Accepted__c', isTrue(values.get('consentAccepted')));
+        setIfFieldExists(caseRecord, 'External_Submission_Id__c', generateExternalSubmissionId(request.categoryId));
+
+        return caseRecord;
+    }
+
+    private static void createTickets(List<TicketRequest> tickets, Id caseId, Id accountId) {
+        if (tickets == null || tickets.isEmpty()) {
+            return;
+        }
+
+        Schema.SObjectType ticketType = Schema.getGlobalDescribe().get('Ticket__c');
+        if (ticketType == null) {
+            throw new AuraHandledException('Ticket__c object was not found. Please create the Ticket custom object first.');
+        }
+
+        Map<String, Schema.SObjectField> ticketFields = ticketType.getDescribe().fields.getMap();
+        if (!ticketFields.containsKey('Case__c')) {
+            throw new AuraHandledException('Ticket__c is missing the Case__c lookup field.');
+        }
+        if (!ticketFields.containsKey('Passenger__c')) {
+            throw new AuraHandledException('Ticket__c is missing the Passenger__c lookup field.');
+        }
+        if (!ticketFields.containsKey('Details__c')) {
+            throw new AuraHandledException('Ticket__c is missing the Details__c long text field.');
+        }
+
+        List<SObject> records = new List<SObject>();
+        for (TicketRequest ticket : tickets) {
+            if (ticket == null) {
+                continue;
+            }
+
+            String ticketNumber = normalizeTicketNumber(ticket);
+            if (isBlank(ticketNumber)) {
+                continue;
+            }
+
+            SObject record = ticketType.newSObject();
+            record.put('Name', truncate(ticketNumber, 80));
+            record.put('Case__c', caseId);
+            record.put('Passenger__c', accountId);
+            record.put('Details__c', str(ticket.details));
+
+            records.add(record);
+        }
+
+        if (!records.isEmpty()) {
+            Database.SaveResult[] results = Database.insert(records, false);
+            List<String> errors = new List<String>();
+            for (Database.SaveResult result : results) {
+                if (!result.isSuccess()) {
+                    errors.add(collectErrors(result.getErrors()));
+                }
+            }
+            if (!errors.isEmpty()) {
+                throw new AuraHandledException('The complaint was created, but ticket creation failed: ' + String.join(errors, ' | '));
+            }
+        }
+    }
+
+    private static Boolean applyAccountFormValues(Account accountRecord, Map<String, Object> values, String submittedLanguage, Boolean overwriteExisting) {
+        Boolean changed = false;
+        String submittedCountry = mapCountry(str(values.get('countryOfResidence')));
+        String submittedRegion = mapRegion(str(values.get('regionOfResidence')));
+
+        changed = setTextIfChanged(accountRecord, 'FirstName', str(values.get('firstName')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'LastName', str(values.get('lastName')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'PersonEmail', normalizeEmail(str(values.get('email'))), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'PersonMobilePhone', str(values.get('mobilePhone')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'Phone', str(values.get('landlinePhone')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'PersonTitle', mapCivilityToTitle(str(values.get('civility'))), overwriteExisting) || changed;
+
+        changed = setDateIfChanged(accountRecord, 'PersonBirthdate', parseDate(str(values.get('dateOfBirth'))), overwriteExisting) || changed;
+
+        changed = setPicklistIfChanged(accountRecord, 'Languages__pc', toSalesforceLanguage(submittedLanguage), null, overwriteExisting) || changed;
+        changed = setPicklistIfChanged(accountRecord, 'Customer_Source__pc', DEFAULT_CUSTOMER_SOURCE, null, overwriteExisting) || changed;
+        changed = setPicklistIfChanged(accountRecord, 'Customer_Source__c', DEFAULT_CUSTOMER_SOURCE, null, overwriteExisting) || changed;
+
+        changed = setTextIfChanged(accountRecord, 'PersonMailingStreet', str(values.get('addressOfResidence')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'PersonMailingPostalCode', str(values.get('postalCode')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'PersonMailingState', submittedRegion, overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'PersonMailingCountry', submittedCountry, overwriteExisting) || changed;
+
+        changed = setTextIfChanged(accountRecord, 'BillingStreet', str(values.get('addressOfResidence')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'BillingPostalCode', str(values.get('postalCode')), overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'BillingState', submittedRegion, overwriteExisting) || changed;
+        changed = setTextIfChanged(accountRecord, 'BillingCountry', submittedCountry, overwriteExisting) || changed;
+
+        return changed;
+    }
+
+    private static void uploadFiles(List<FileRequest> files, Id caseId) {
+        if (files == null || files.isEmpty() || caseId == null) {
+            return;
+        }
+
+        List<ContentVersion> versions = new List<ContentVersion>();
+        for (FileRequest file : files) {
+            if (file == null || isBlank(file.fileName) || isBlank(file.base64Data)) {
+                continue;
+            }
+
+            String cleanBase64 = cleanBase64Payload(file.base64Data);
+            if (isBlank(cleanBase64)) {
+                continue;
+            }
+
+            ContentVersion version = new ContentVersion();
+            version.Title = truncate(fileTitle(file.fileName), 255);
+            version.PathOnClient = truncate(safeFileName(file.fileName), 500);
+            version.VersionData = EncodingUtil.base64Decode(cleanBase64);
+            version.FirstPublishLocationId = caseId;
+            versions.add(version);
+        }
+
+        if (versions.isEmpty()) {
+            return;
+        }
+
+        Database.SaveResult[] results = Database.insert(versions, false);
+        List<String> errors = new List<String>();
+        for (Database.SaveResult result : results) {
+            if (!result.isSuccess()) {
+                errors.add(collectErrors(result.getErrors()));
+            }
+        }
+        if (!errors.isEmpty()) {
+            throw new AuraHandledException('The complaint was created, but file upload failed: ' + String.join(errors, ' | '));
+        }
+    }
+
+    private static String buildSubject(String fullName, String category) {
+        return truncate(fullName + ' - E-DOL - ' + category + ' - ' + String.valueOf(Date.today()), 255);
+    }
+
+    private static String buildDescription(SubmissionRequest request, Map<String, Object> values, String category, String subcategory, String submittedCountry) {
+        List<String> lines = new List<String>();
+        lines.add('E-DOL complaint submission');
+        lines.add('Category: ' + category);
+        if (!isBlank(subcategory)) {
+            lines.add('Subcategory: ' + subcategory);
+        }
+        lines.add('Submitted language: ' + toSalesforceLanguage(request.language));
+        if (!isBlank(submittedCountry)) {
+            lines.add('Submitted country: ' + submittedCountry);
+        }
+        addLine(lines, 'Claimant type', values.get('claimantType'));
+        addLine(lines, 'Civility', values.get('civility'));
+        addLine(lines, 'Region of residence', values.get('regionOfResidence'));
+        addLine(lines, 'Address of residence', values.get('addressOfResidence'));
+        addLine(lines, 'Postal code', values.get('postalCode'));
+        addLine(lines, 'Incident location', values.get('incidentLocation'));
+        addLine(lines, 'Flight number', values.get('flightNumber'));
+        addLine(lines, 'Flight date', values.get('flightDate'));
+        addLine(lines, 'PIR file number', values.get('pirFileNumber'));
+        addLine(lines, 'Complaint filed date', values.get('complaintFiledDate'));
+        addLine(lines, 'Reception quality', values.get('receptionQuality'));
+        addLine(lines, 'Details', values.get('details'));
+        addLine(lines, 'File upload session', request.fileUploadSessionKey);
+        return truncate(String.join(lines, '\n'), 32000);
+    }
+
+    private static void addLine(List<String> lines, String label, Object value) {
+        String text = str(value);
+        if (!isBlank(text)) {
+            lines.add(label + ': ' + text);
+        }
+    }
+
+    private static String mapCategory(String categoryId) {
+        Map<String, String> values = new Map<String, String>{
+            'cancellation-delay' => 'Cancellation or delay',
+            'denied-boarding' => 'Denied boarding',
+            'mishandled-baggage' => 'Mishandled baggage',
+            'payment-issue' => 'Payment issue during reservation',
+            'services-amenities' => 'Services and amenities',
+            'loyalty' => 'Air Algérie Plus members',
+            'refund-unused-ticket' => 'Refund for unused or partially used ticket',
+            'feedback-suggestions' => 'Feedback and suggestions'
+        };
+        return values.containsKey(categoryId) ? values.get(categoryId) : 'Other';
+    }
+
+    private static String mapSubcategory(String categoryId, String reason, String ticketPurchaseChannel) {
+        if (categoryId == 'cancellation-delay') {
+            if (reason == 'cancellation' && !isBlank(ticketPurchaseChannel)) {
+                Map<String, String> channels = new Map<String, String>{
+                    'website-or-app' => 'Ticket purchased on Air Algérie website or app',
+                    'contact-center' => 'Ticket purchased via contact center',
+                    'agency' => 'Ticket purchased from an Air Algérie agency'
+                };
+                return channels.containsKey(ticketPurchaseChannel) ? channels.get(ticketPurchaseChannel) : 'Flight cancelled';
+            }
+            if (reason == 'cancellation') {
+                return 'Flight cancelled';
+            }
+            if (reason == 'delay') {
+                return 'Flight delayed';
+            }
+        }
+
+        if (categoryId == 'denied-boarding') {
+            Map<String, String> deniedReasons = new Map<String, String>{
+                'overbooking' => 'Denied boarding due to overbooking',
+                'aircraft-change' => 'Denied boarding due to operational reason',
+                'flown-status-unused-journey' => 'Denied boarding due to operational reason',
+                'late-passenger-arrival' => 'Other',
+                'passenger-behaviour' => 'Other',
+                'penalty-payment-dispute' => 'Other',
+                'pregnant-passenger' => 'Other',
+                'other' => 'Other'
+            };
+            return deniedReasons.containsKey(reason) ? deniedReasons.get(reason) : 'Other';
+        }
+
+        if (categoryId == 'mishandled-baggage') {
+            return 'Other';
+        }
+
+        return 'Other';
+    }
+
+    private static String mapCivilityToTitle(String civility) {
+        Map<String, String> values = new Map<String, String>{
+            'mr' => 'Mr.',
+            'mrs' => 'Mrs.'
+        };
+        return values.containsKey(civility) ? values.get(civility) : null;
+    }
+
+    private static String mapCountry(String countryCode) {
+        if (isBlank(countryCode)) {
+            return null;
+        }
+        Map<String, String> countries = new Map<String, String>{
+            'DZ' => 'Algeria',
+            'FR' => 'France',
+            'CA' => 'Canada',
+            'GB' => 'United Kingdom',
+            'ES' => 'Spain',
+            'IT' => 'Italy',
+            'DE' => 'Germany',
+            'BE' => 'Belgium',
+            'CH' => 'Switzerland',
+            'TR' => 'Turkey',
+            'AE' => 'United Arab Emirates',
+            'SA' => 'Saudi Arabia',
+            'QA' => 'Qatar',
+            'TN' => 'Tunisia',
+            'MA' => 'Morocco',
+            'EG' => 'Egypt',
+            'OTHER' => 'Other'
+        };
+        return countries.containsKey(countryCode) ? countries.get(countryCode) : 'Other';
+    }
+
+    private static String mapBusinessRouting(String categoryId) {
+        Map<String, String> routing = new Map<String, String>{
+            'cancellation-delay' => 'Flight Disruption',
+            'denied-boarding' => 'Denied Boarding',
+            'mishandled-baggage' => 'Baggage',
+            'payment-issue' => 'Payment',
+            'services-amenities' => 'Customer Service',
+            'loyalty' => 'Loyalty',
+            'refund-unused-ticket' => 'Refunds',
+            'feedback-suggestions' => 'Feedback'
+        };
+        return routing.containsKey(categoryId) ? routing.get(categoryId) : 'Manual Review';
+    }
+
+    private static String mapRoutingMode(String categoryId, String regionCode) {
+        String businessRouting = mapBusinessRouting(categoryId);
+        if (!isBlank(businessRouting) && businessRouting != 'Manual Review') {
+            return 'Business';
+        }
+        if (!isBlank(regionCode)) {
+            return 'Region';
+        }
+        return 'Business';
+    }
+
+    private static String mapClaimantType(String claimantType) {
+        Map<String, String> values = new Map<String, String>{
+            'passenger' => 'Passenger',
+            'legal-representative' => 'Legal representative of a passenger'
+        };
+        return values.containsKey(claimantType) ? values.get(claimantType) : null;
+    }
+
+    private static String mapRegion(String regionCode) {
+        if (isBlank(regionCode)) {
+            return null;
+        }
+        Map<String, String> regions = new Map<String, String>{
+            'DZ-01' => 'Adrar',
+            'DZ-02' => 'Chlef',
+            'DZ-03' => 'Laghouat',
+            'DZ-04' => 'Oum El Bouaghi',
+            'DZ-05' => 'Batna',
+            'DZ-06' => 'Béjaïa',
+            'DZ-07' => 'Biskra',
+            'DZ-08' => 'Béchar',
+            'DZ-09' => 'Blida',
+            'DZ-10' => 'Bouira',
+            'DZ-11' => 'Tamanrasset',
+            'DZ-12' => 'Tébessa',
+            'DZ-13' => 'Tlemcen',
+            'DZ-14' => 'Tiaret',
+            'DZ-15' => 'Tizi Ouzou',
+            'DZ-16' => 'Algiers',
+            'DZ-17' => 'Djelfa',
+            'DZ-18' => 'Jijel',
+            'DZ-19' => 'Sétif',
+            'DZ-20' => 'Saïda',
+            'DZ-21' => 'Skikda',
+            'DZ-22' => 'Sidi Bel Abbès',
+            'DZ-23' => 'Annaba',
+            'DZ-24' => 'Guelma',
+            'DZ-25' => 'Constantine',
+            'DZ-26' => 'Médéa',
+            'DZ-27' => 'Mostaganem',
+            'DZ-28' => 'M’Sila',
+            'DZ-29' => 'Mascara',
+            'DZ-30' => 'Ouargla',
+            'DZ-31' => 'Oran',
+            'DZ-32' => 'El Bayadh',
+            'DZ-33' => 'Illizi',
+            'DZ-34' => 'Bordj Bou Arréridj',
+            'DZ-35' => 'Boumerdès',
+            'DZ-36' => 'El Tarf',
+            'DZ-37' => 'Tindouf',
+            'DZ-38' => 'Tissemsilt',
+            'DZ-39' => 'El Oued',
+            'DZ-40' => 'Khenchela',
+            'DZ-41' => 'Souk Ahras',
+            'DZ-42' => 'Tipaza',
+            'DZ-43' => 'Mila',
+            'DZ-44' => 'Aïn Defla',
+            'DZ-45' => 'Naâma',
+            'DZ-46' => 'Aïn Témouchent',
+            'DZ-47' => 'Ghardaïa',
+            'DZ-48' => 'Relizane',
+            'DZ-49' => 'Timimoun',
+            'DZ-50' => 'Bordj Badji Mokhtar',
+            'DZ-51' => 'Ouled Djellal',
+            'DZ-52' => 'Béni Abbès',
+            'DZ-53' => 'In Salah',
+            'DZ-54' => 'In Guezzam',
+            'DZ-55' => 'Touggourt',
+            'DZ-56' => 'Djanet',
+            'DZ-57' => 'El M’Ghair',
+            'DZ-58' => 'El Meniaa',
+            'OTHER' => 'Other'
+        };
+        return regions.containsKey(regionCode) ? regions.get(regionCode) : 'Other';
+    }
+
+    private static String normalizeTicketNumber(TicketRequest ticket) {
+        String prefix = isBlank(str(ticket.prefix)) ? '124' : str(ticket.prefix).replaceAll('\\s+', '');
+        String numberValue = str(ticket.ticketNumber);
+
+        if (!isBlank(numberValue)) {
+            return (prefix + numberValue).replaceAll('\\s+', '');
+        }
+
+        String full = str(ticket.fullTicketNumber);
+        if (!isBlank(full)) {
+            String cleanedFull = full.replaceAll('\\s+', '');
+            if (cleanedFull != prefix) {
+                return cleanedFull;
+            }
+        }
+
+        return null;
+    }
+
+    private static String normalizeEmail(String value) {
+        return isBlank(value) ? null : value.trim().toLowerCase();
+    }
+
+    private static String normalizePhone(String value) {
+        return isBlank(value) ? null : value.trim().replaceAll('\\s+', ' ');
+    }
+
+    private static String toSalesforceLanguage(String language) {
+        if (isBlank(language)) {
+            return null;
+        }
+        return language.trim().toUpperCase();
+    }
+
+    private static String buildFullName(String firstName, String lastName) {
+        String fullName = (str(firstName) + ' ' + str(lastName)).trim();
+        return isBlank(fullName) ? 'E-DOL Customer' : fullName;
+    }
+
+    private static String generateExternalSubmissionId(String categoryId) {
+        String seed = String.valueOf(DateTime.now().getTime()) + '-' + String.valueOf(Crypto.getRandomInteger()) + '-' + str(categoryId);
+        return 'EDOL-' + EncodingUtil.convertToHex(Crypto.generateDigest('SHA1', Blob.valueOf(seed))).substring(0, 20).toUpperCase();
+    }
+
+    private static Boolean setTextIfChanged(SObject record, String fieldName, String value, Boolean overwriteExisting) {
+        if (isBlank(value) || !hasField(record, fieldName)) {
+            return false;
+        }
+        String currentValue = str(record.get(fieldName));
+        if (!overwriteExisting && !isBlank(currentValue)) {
+            return false;
+        }
+        if (currentValue != null && String.valueOf(currentValue) == String.valueOf(value)) {
+            return false;
+        }
+        record.put(fieldName, value);
+        return true;
+    }
+
+    private static Boolean setDateIfChanged(SObject record, String fieldName, Date value, Boolean overwriteExisting) {
+        if (value == null || !hasField(record, fieldName)) {
+            return false;
+        }
+        Object currentValue = record.get(fieldName);
+        if (!overwriteExisting && currentValue != null) {
+            return false;
+        }
+        if (currentValue != null && String.valueOf(currentValue) == String.valueOf(value)) {
+            return false;
+        }
+        record.put(fieldName, value);
+        return true;
+    }
+
+    private static Boolean setPicklistIfChanged(SObject record, String fieldName, String value, String fallbackValue, Boolean overwriteExisting) {
+        if (isBlank(value) || !hasField(record, fieldName)) {
+            return false;
+        }
+        String currentValue = str(record.get(fieldName));
+        if (!overwriteExisting && !isBlank(currentValue)) {
+            return false;
+        }
+        if (currentValue == value) {
+            return false;
+        }
+        Boolean changed = setPicklistIfValid(record, fieldName, value, fallbackValue);
+        return changed && str(record.get(fieldName)) != currentValue;
+    }
+
+    private static String cleanBase64Payload(String value) {
+        if (isBlank(value)) {
+            return null;
+        }
+        String text = value.trim();
+        Integer commaIndex = text.indexOf(',');
+        if (text.startsWith('data:') && commaIndex >= 0) {
+            text = text.substring(commaIndex + 1);
+        }
+        return text;
+    }
+
+    private static String safeFileName(String fileName) {
+        String value = str(fileName);
+        if (isBlank(value)) {
+            return 'attachment';
+        }
+        return value.replaceAll('[\\\\/:*?"<>|]', '_');
+    }
+
+    private static String fileTitle(String fileName) {
+        String value = safeFileName(fileName);
+        Integer dotIndex = value.lastIndexOf('.');
+        if (dotIndex > 0) {
+            return value.substring(0, dotIndex);
+        }
+        return value;
+    }
+
+    private static Boolean setIfFieldExists(SObject record, String fieldName, Object value) {
+        if (value == null || !hasField(record, fieldName)) {
+            return false;
+        }
+        record.put(fieldName, value);
+        return true;
+    }
+
+    private static Boolean setPicklistIfValid(SObject record, String fieldName, String value, String fallbackValue) {
+        if (isBlank(value) || !hasField(record, fieldName)) {
+            return false;
+        }
+
+        Schema.DescribeFieldResult describeField = record.getSObjectType().getDescribe().fields.getMap().get(fieldName).getDescribe();
+        if (describeField.getType() != Schema.DisplayType.Picklist) {
+            record.put(fieldName, value);
+            return true;
+        }
+
+        Set<String> allowedValues = new Set<String>();
+        for (Schema.PicklistEntry entry : describeField.getPicklistValues()) {
+            if (entry.isActive()) {
+                allowedValues.add(entry.getValue());
+            }
+        }
+
+        if (allowedValues.contains(value)) {
+            record.put(fieldName, value);
+            return true;
+        }
+        if (!isBlank(fallbackValue) && allowedValues.contains(fallbackValue)) {
+            record.put(fieldName, fallbackValue);
+            return true;
+        }
+        return false;
+    }
+
+    private static Boolean hasField(SObject record, String fieldName) {
+        return record != null && record.getSObjectType().getDescribe().fields.getMap().containsKey(fieldName);
+    }
+
+    private static String firstExistingField(SObject record, List<String> fieldNames) {
+        Map<String, Schema.SObjectField> fields = record.getSObjectType().getDescribe().fields.getMap();
+        for (String fieldName : fieldNames) {
+            if (fields.containsKey(fieldName)) {
+                return fieldName;
+            }
+        }
+        return null;
+    }
+
+    private static Date parseDate(String value) {
+        if (isBlank(value)) {
+            return null;
+        }
+        try {
+            return Date.valueOf(value);
+        } catch (Exception error) {
+            return null;
+        }
+    }
+
+    private static String collectErrors(Database.Error[] errors) {
+        List<String> messages = new List<String>();
+        for (Database.Error error : errors) {
+            messages.add(error.getMessage());
+        }
+        return String.join(messages, ' | ');
+    }
+
+    private static String str(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String text = String.valueOf(value);
+        return text == null ? null : text.trim();
+    }
+
+    private static Boolean isTrue(Object value) {
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        String text = String.valueOf(value).trim().toLowerCase();
+        return text == 'true' || text == '1' || text == 'yes' || text == 'on';
+    }
+
+    private static Boolean isBlank(String value) {
+        return value == null || value.trim().length() == 0;
+    }
+
+    private static String truncate(String value, Integer maxLength) {
+        if (value == null) {
+            return null;
+        }
+        return value.length() > maxLength ? value.substring(0, maxLength) : value;
+    }
+
+    public class SubmissionRequest {
+        @AuraEnabled public String categoryId { get; set; }
+        @AuraEnabled public String formCode { get; set; }
+        @AuraEnabled public String language { get; set; }
+        @AuraEnabled public Map<String, Object> values { get; set; }
+        @AuraEnabled public List<TicketRequest> tickets { get; set; }
+        @AuraEnabled public List<FileRequest> files { get; set; }
+        @AuraEnabled public Boolean captchaVerified { get; set; }
+        @AuraEnabled public String fileUploadSessionKey { get; set; }
+    }
+
+    public class TicketRequest {
+        @AuraEnabled public String prefix { get; set; }
+        @AuraEnabled public String ticketNumber { get; set; }
+        @AuraEnabled public String fullTicketNumber { get; set; }
+        @AuraEnabled public String details { get; set; }
+    }
+
+    public class FileRequest {
+        @AuraEnabled public String fileName { get; set; }
+        @AuraEnabled public String contentType { get; set; }
+        @AuraEnabled public String base64Data { get; set; }
+    }
+
+    public class AccountPrefillResult {
+        @AuraEnabled public Boolean found { get; set; }
+        @AuraEnabled public Id accountId { get; set; }
+        @AuraEnabled public Map<String, Object> values { get; set; }
+    }
+
+    public class SubmissionResult {
+        @AuraEnabled public Boolean success { get; set; }
+        @AuraEnabled public Id accountId { get; set; }
+        @AuraEnabled public Id contactId { get; set; }
+        @AuraEnabled public Id caseId { get; set; }
+        @AuraEnabled public String caseNumber { get; set; }
+    }
+}

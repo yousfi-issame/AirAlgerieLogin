@@ -1,0 +1,125 @@
+<template>
+    <main class={pageClass}>
+        <section class="heroHeader trackHeroBanner" style={heroBackgroundStyle}>
+            <c-e-dol-portal-header selected-language={selectedLanguage} onlanguagechange={handleLanguageChange}></c-e-dol-portal-header>
+            <h1>{labels.heroTitle}</h1>
+            <div class="wave"></div>
+        </section>
+
+        <section class="formContent trackFormContent">
+            <div class="progressPath trackProgressPath" aria-hidden="true">
+                <div class={referenceStepClass}>
+                    <span class="stepCircle">1</span>
+                    <span class="stepLabel">{labels.trackStepOne}</span>
+                </div>
+                <div class={statusStepClass}>
+                    <span class="stepCircle">2</span>
+                    <span class="stepLabel">{labels.trackStepTwo}</span>
+                </div>
+                <div class={followUpStepClass}>
+                    <span class="stepCircle">3</span>
+                    <span class="stepLabel">{labels.trackStepThree}</span>
+                </div>
+            </div>
+
+            <section class="trackHero">
+                <div class="trackHeroInner">
+                    <button class="edol-back-mini" type="button" onclick={goBack}>{labels.back}</button>
+                    <div>
+                        <p class="trackKicker">{labels.kicker}</p>
+                        <h1>{labels.title}</h1>
+                        <p class="trackSubtitle">{labels.subtitle}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="trackContent">
+                <div class="trackCard">
+                    <template if:false={hasResult}>
+                        <div class="trackIntro">
+                            <span class="trackIcon">🔎</span>
+                            <h2>{labels.formTitle}</h2>
+                            <p>{labels.formHelp}</p>
+                        </div>
+
+                        <form onsubmit={handleSubmit} novalidate>
+                            <div class={caseNumberFieldClass} data-error={caseNumberError}>
+                                <label class="edol-label" for="caseNumberInput">
+                                    <span class="required">*</span> {labels.caseNumber}
+                                </label>
+                                <input
+                                    id="caseNumberInput"
+                                    name="caseNumber"
+                                    class="edol-input"
+                                    type="text"
+                                    inputmode="numeric"
+                                    value={caseNumber}
+                                    placeholder={labels.caseNumberPlaceholder}
+                                    oninput={handleCaseNumberChange}
+                                    maxlength="12"
+                                />
+                            </div>
+
+                            <div class="trackActions">
+                                <button class="edol-btn edol-btn-primary" type="submit" disabled={isLoading}>{submitLabel}</button>
+                            </div>
+                        </form>
+                    </template>
+
+                    <template if:true={hasResult}>
+                        <template if:true={trackingFound}>
+                            <div class="trackResult trackResultSuccess">
+                                <div class="trackResultIcon">✓</div>
+                                <h2>{labels.resultTitle}</h2>
+                                <p class="trackResultText">
+                                    {labels.yourCasePrefix} <strong>{result.caseNumber}</strong>
+                                    <span class="trackStatusMiddle">{labels.statusMiddle}</span>
+                                    <span class="trackStatusValue"><strong>{result.status}</strong></span>.
+                                </p>
+                                <div class="trackDescription">
+                                    <span>{labels.descriptionLabel}</span>
+                                    <p>{resultDescription}</p>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template if:false={trackingFound}>
+                            <div class="trackResult trackResultWarning">
+                                <div class="trackResultIcon">!</div>
+                                <h2>{labels.notFoundTitle}</h2>
+                                <p>{labels.notFoundMessage}</p>
+                            </div>
+                        </template>
+
+                        <div class="trackActions trackActionsCentered">
+                            <button class="edol-btn edol-btn-secondary" type="button" onclick={resetSearch}>{labels.searchAgain}</button>
+                            <template if:true={trackingFound}>
+                                <button
+                                    class="edol-btn edol-btn-disabled trackReopenButton"
+                                    type="button"
+                                    disabled
+                                    title={labels.reopenDisabledHelp}
+                                >
+                                    {labels.reopenComplaint}
+                                </button>
+                            </template>
+                            <button class="edol-btn edol-btn-primary" type="button" onclick={goBack}>{labels.backToComplaintPage}</button>
+                        </div>
+                    </template>
+                </div>
+            </section>
+        </section>
+
+        <template if:true={errorModalOpen}>
+            <section class="edol-modal-backdrop" role="presentation">
+                <div class="edol-modal" role="dialog" aria-modal="true" aria-labelledby="track-error-title">
+                    <h2 id="track-error-title">{labels.errorTitle}</h2>
+                    <p>{errorMessage}</p>
+                    <div class="edol-modal-actions">
+                        <button class="modalOk" type="button" onclick={closeError}>{labels.ok}</button>
+                    </div>
+                </div>
+            </section>
+        </template>
+    </main>
+</template>

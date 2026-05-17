@@ -1,0 +1,4337 @@
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/resource/MontserratFont/Montserrat-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:host {
+    --edol-red: #ec1c24;
+    --edol-red-dark: #d71920;
+    --edol-bg: #eaf0f6;
+    --edol-text: #06142d;
+    --edol-muted: #71809b;
+    --edol-border: #d8dee8;
+    --edol-input-bg: #f7f9fc;
+    --edol-card: #ffffff;
+    --edol-soft-red: #fff0f1;
+    --edol-shadow: 0 18px 42px rgba(11, 29, 62, 0.08);
+    --edol-font: 'Montserrat', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    display: block;
+    font-family: var(--edol-font);
+    color: var(--edol-text);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.edol-force-ltr,
+.edol-force-ltr * {
+    direction: ltr;
+}
+
+.edol-force-rtl {
+    direction: rtl;
+}
+
+.edol-force-rtl .portalHeader,
+.edol-force-rtl .languageWrapper,
+.edol-force-rtl .languageWrapper *,
+.edol-force-rtl .heroHeader,
+.edol-force-rtl .progressPath {
+    direction: ltr;
+}
+
+.edol-page,
+.homePage,
+.formPage,
+.categoryPage,
+.unavailablePage {
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--edol-bg);
+    font-family: var(--edol-font);
+    color: var(--edol-text);
+}
+
+.portalHeader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 25;
+    height: 88px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 22px 44px 0 44px;
+    pointer-events: none;
+}
+
+.logoWrap,
+.languageWrapper {
+    pointer-events: auto;
+}
+
+.logoWrap {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo {
+    width: 238px;
+    max-width: 238px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.languageWrapper {
+    position: relative;
+    z-index: 10000;
+    min-width: 154px;
+    display: flex;
+    pointer-events: auto;
+    justify-content: flex-end;
+}
+
+.languageButton {
+    pointer-events: auto;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #111827;
+    font: 500 15px/1.2 var(--edol-font);
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.languageButton:hover,
+.languageButton.open {
+    background: rgba(255, 255, 255, 0.34);
+    border-color: rgba(236, 28, 36, 0.18);
+    box-shadow: 0 10px 22px rgba(40, 50, 70, 0.08);
+}
+
+.languageCode {
+    font-weight: 800;
+    color: #050505;
+}
+
+.languageFlag {
+    width: auto;
+    height: auto;
+    font-size: 20px;
+    line-height: 1;
+    border-radius: 1px;
+    box-shadow: none;
+}
+
+.chevron {
+    color: #94a3b8;
+    font-size: 16px;
+    margin-left: 2px;
+}
+
+.languageMenu {
+    pointer-events: auto;
+    position: absolute;
+    top: 44px;
+    right: 0;
+    z-index: 10000;
+    width: 148px;
+    padding: 7px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.14);
+}
+
+.languageOption {
+    pointer-events: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #111827;
+    font: 500 15px/1.2 var(--edol-font);
+    text-align: left;
+    cursor: pointer;
+}
+
+.languageOption:hover,
+.languageOption.selected {
+    background: #fde6e7;
+    font-weight: 800;
+}
+
+.heroHeader {
+    position: relative;
+    height: 332px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center 48%;
+    background-repeat: no-repeat;
+    border-top: 3px solid #0f2a42;
+}
+
+.heroHeader::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 220, 0.08);
+}
+
+.heroHeader h1 {
+    position: absolute;
+    z-index: 3;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    color: #fff;
+    font: 800 31px/1.1 var(--edol-font);
+    text-shadow: 0 8px 16px rgba(20, 20, 20, 0.25);
+    white-space: nowrap;
+}
+
+.wave {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    bottom: -1px;
+    height: 142px;
+    z-index: 2;
+    background: rgba(234, 240, 246, 0.95);
+    clip-path: polygon(0 34%, 17% 86%, 41% 70%, 62% 50%, 80% 20%, 100% 31%, 100% 100%, 0 100%);
+}
+
+.edol-main {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 72px 32px 92px;
+}
+
+.formContent {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 72px 24px 92px;
+}
+
+.progressPath {
+    max-width: 1120px;
+    margin: 0 auto 52px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    column-gap: 28px;
+}
+
+.progressStep {
+    position: relative;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    color: #94a3b8;
+    font: 500 13px/1.2 var(--edol-font);
+    text-align: center;
+}
+
+.progressStep::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    width: 100%;
+    height: 1px;
+    background: #dbe3ee;
+}
+
+.progressStep:first-child::before {
+    display: none;
+}
+
+.progressStep.active::before,
+.progressStep.completed::before {
+    background: var(--edol-red);
+}
+
+.stepCircle {
+    position: relative;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef3f9;
+    color: #65748e;
+    font: 700 14px/1 var(--edol-font);
+}
+
+.progressStep.active .stepCircle,
+.progressStep.completed .stepCircle {
+    background: #df2b30;
+    color: #fff;
+}
+
+.progressStep.active .stepLabel,
+.progressStep.completed .stepLabel {
+    color: var(--edol-red);
+}
+
+.stepLabel {
+    display: block;
+    white-space: nowrap;
+}
+
+.sectionHeader {
+    max-width: 1280px;
+    margin: 0 auto 26px;
+}
+
+.edol-title,
+.sectionHeader h1 {
+    margin: 0 0 12px;
+    color: #000;
+    font: 800 28px/1.2 var(--edol-font);
+    letter-spacing: -0.02em;
+}
+
+.edol-subtitle,
+.sectionHeader p {
+    margin: 0;
+    color: #71809b;
+    font: 400 15px/1.4 var(--edol-font);
+}
+
+.categoryGrid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 26px;
+    align-items: stretch;
+}
+
+.categoryCard {
+    position: relative;
+    width: 100%;
+    min-height: 156px;
+    height: 156px;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: start;
+    padding: 25px 24px 50px;
+    border: 1px solid rgba(217, 226, 236, 0.68);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.055);
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--edol-font);
+    transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.categoryCard:hover,
+.categoryCard.active {
+    transform: translateY(-1px);
+    background: #df2b30;
+    box-shadow: 0 18px 34px rgba(177, 26, 31, 0.18);
+}
+
+.categoryIcon {
+    width: 46px;
+    height: 46px;
+    margin-top: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff0f1;
+    color: var(--edol-red);
+    flex-shrink: 0;
+}
+
+.categorySvg {
+    width: 25px;
+    height: 25px;
+    display: block;
+    color: currentColor;
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.categorySvg path {
+    fill: none !important;
+    stroke: currentColor !important;
+}
+
+.categoryCard .content {
+    min-width: 0;
+    height: 100%;
+    display: block;
+}
+
+.categoryCard h3 {
+    margin: 0 0 11px;
+    color: #06142d;
+    font: 800 16px/1.25 var(--edol-font);
+    letter-spacing: -0.01em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.categoryCard p {
+    margin: 0;
+    max-width: 100%;
+    min-height: 0;
+    color: #40506a;
+    font: 400 14px/1.45 var(--edol-font);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.openButton {
+    position: absolute;
+    right: 24px;
+    bottom: 22px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--edol-red);
+    font: 800 14px/1 var(--edol-font);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.categoryCard:hover .categoryIcon,
+.categoryCard.active .categoryIcon {
+    background: #ffffff;
+    color: var(--edol-red);
+}
+
+.categoryCard:hover h3,
+.categoryCard:hover p,
+.categoryCard.active h3,
+.categoryCard.active p,
+.categoryCard:hover .openButton,
+.categoryCard.active .openButton {
+    color: #ffffff;
+}
+
+.unavailableCategory {
+    background: #ffffff;
+}
+
+.unavailableCategory:hover {
+    background: #df2b30;
+}
+
+.categoryPage.edol-force-rtl .sectionHeader,
+.categoryPage.edol-force-rtl .categoryCard,
+.categoryPage.edol-force-rtl .categoryCard .content {
+    direction: rtl;
+    text-align: right;
+}
+
+.categoryPage.edol-force-rtl .openButton {
+    right: auto;
+    left: 24px;
+}
+
+.formPage .previewCard,
+.formPreviewCard {
+    margin-bottom: 34px;
+    pointer-events: none;
+}
+
+.formPage .previewCard .categoryCard,
+.formPreviewCard .categoryCard {
+    min-height: 104px;
+    height: 104px;
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: 18px;
+    padding: 24px 28px;
+    cursor: default;
+    background: #ffffff;
+    box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.formPage .previewCard .categoryCard:hover,
+.formPreviewCard .categoryCard:hover {
+    transform: none;
+    background: #ffffff;
+    box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.formPage .previewCard .categoryIcon,
+.formPreviewCard .categoryIcon {
+    width: 42px;
+    height: 42px;
+    background: #fff0f1;
+    color: var(--edol-red);
+}
+
+.formPage .previewCard .categorySvg,
+.formPreviewCard .categorySvg {
+    width: 22px;
+    height: 22px;
+}
+
+.formPage .previewCard .categoryCard h3,
+.formPreviewCard .categoryCard h3 {
+    margin-bottom: 7px;
+    color: #06142d;
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.formPage .previewCard .categoryCard p,
+.formPreviewCard .categoryCard p {
+    color: #40506a;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-line-clamp: 1;
+}
+
+.formPage .previewCard .openButton,
+.formPreviewCard .openButton {
+    display: none;
+}
+
+.formPage .previewCard .categoryCard:hover h3,
+.formPage .previewCard .categoryCard:hover p,
+.formPreviewCard .categoryCard:hover h3,
+.formPreviewCard .categoryCard:hover p {
+    color: inherit;
+}
+
+.quickPreviewHeader {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    justify-content: start;
+    column-gap: 20px;
+    margin-bottom: 26px;
+}
+
+.quickPreviewHeader .quickPreviewCopy {
+    order: 2;
+}
+
+.quickPreviewHeader h1 {
+    margin: 0 0 7px;
+    color: #000;
+    font: 800 22px/1.2 var(--edol-font);
+}
+
+.quickPreviewHeader p {
+    margin: 0;
+    color: var(--edol-muted);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.backButton {
+    order: 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 7px;
+    background: #fff;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 12px;
+    box-shadow: 0 1px 8px rgba(15, 23, 42, 0.05);
+    cursor: pointer;
+}
+
+.edol-form-card {
+    padding: 44px 48px 46px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--edol-shadow);
+}
+
+.infoBox {
+    position: relative;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    border: 1px solid #d3d9e3;
+    border-radius: 8px;
+    background: #f6f8fb;
+    color: #18243a;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.infoBox p {
+    margin: 0;
+}
+
+.infoBox span {
+    position: absolute;
+    top: 8px;
+    right: -8px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: var(--edol-red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.formBody {
+    width: 100%;
+}
+
+.formSection,
+.edol-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 22px;
+}
+
+.formSection {
+    grid-template-columns: 1fr;
+}
+
+.edol-field {
+    margin-bottom: 17px;
+}
+
+.edol-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #243047;
+    font: 500 13px/1.3 var(--edol-font);
+}
+
+.edol-required {
+    color: var(--edol-red);
+}
+
+.edol-input,
+.edol-select,
+.edol-textarea {
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid #d5dce7;
+    border-radius: 6px;
+    background: var(--edol-input-bg);
+    color: #1f2937;
+    font: 400 14px/1.45 var(--edol-font);
+    outline: 0;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.edol-input,
+.edol-select {
+    padding: 9px 12px;
+}
+
+.edol-select {
+    appearance: auto;
+}
+
+.edol-textarea {
+    min-height: 96px;
+    padding: 12px;
+    resize: vertical;
+}
+
+.edol-input:focus,
+.edol-select:focus,
+.edol-textarea:focus {
+    border-color: #fac1c3;
+    box-shadow: 0 0 0 3px rgba(236, 28, 36, 0.08);
+    background: #fff;
+}
+
+.edol-input::placeholder,
+.edol-textarea::placeholder {
+    color: #a4aeba;
+}
+
+
+.edol-phone-control {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 42px;
+    position: relative;
+}
+
+.edol-phone-prefix {
+    position: relative;
+    width: 56px;
+    flex: 0 0 56px;
+    border: 1px solid #d2dbe8;
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: #f4f6fa;
+}
+
+.edol-phone-flag-button {
+    width: 100%;
+    height: 100%;
+    min-height: 42px;
+    border: 0;
+    border-radius: 8px 0 0 8px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.edol-phone-flag {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.edol-phone-caret {
+    font-size: 13px;
+    color: #24364f;
+    line-height: 1;
+    margin-top: -2px;
+}
+
+.edol-phone-number {
+    flex: 1;
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid #d2dbe8;
+    border-radius: 0 8px 8px 0;
+    background: #f4f6fa;
+    color: #0b1f3a;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0 14px;
+    outline: none;
+}
+
+.edol-phone-number:focus {
+    border-color: #d92d2d;
+    box-shadow: 0 0 0 2px rgba(217, 45, 45, 0.16);
+    background: #ffffff;
+}
+
+.edol-phone-number::placeholder {
+    color: #a8b2c1;
+    opacity: 1;
+}
+
+.edol-phone-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 280px;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e1e6ef;
+    border-radius: 10px;
+    box-shadow: 0 16px 34px rgba(15, 31, 59, 0.18);
+    z-index: 10000;
+    padding: 6px;
+}
+
+.edol-phone-option {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #0b1f3a;
+    display: grid;
+    grid-template-columns: 28px 64px 1fr;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.edol-phone-option:hover,
+.edol-phone-option:focus {
+    background: #f3f6fa;
+}
+
+[dir="rtl"] .edol-phone-prefix {
+    border-right: 1px solid #d2dbe8;
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+[dir="rtl"] .edol-phone-flag-button {
+    border-radius: 0 8px 8px 0;
+}
+
+[dir="rtl"] .edol-phone-number {
+    border-radius: 8px 0 0 8px;
+}
+
+[dir="rtl"] .edol-phone-dropdown {
+    left: auto;
+    right: 0;
+}
+
+[dir="rtl"] .edol-phone-option {
+    text-align: right;
+}
+
+.ticketBox {
+    margin: 10px 0 14px;
+    padding: 18px;
+    border: 1px solid #d2d9e5;
+    border-radius: 7px;
+    background: #fff;
+}
+
+.ticketItem + .ticketItem {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed #d2d9e5;
+}
+
+.ticketHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #0f172a;
+    font-size: 12px;
+}
+
+.ticketRemove {
+    border: 0;
+    background: transparent;
+    color: var(--edol-red);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.ticketNumberField {
+    max-width: 520px;
+}
+
+.ticketInputRow {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    gap: 8px;
+}
+
+.ticketHint {
+    margin: 5px 0 0;
+    color: var(--edol-red);
+    font-size: 10px;
+}
+
+.ticketDetails {
+    min-height: 70px;
+}
+
+.addTicketButton {
+    width: 100%;
+    min-height: 28px;
+    border: 1px dashed #c5cedb;
+    border-radius: 5px;
+    background: #fff;
+    color: #6b7280;
+    font: 600 11px/1 var(--edol-font);
+    cursor: pointer;
+}
+
+.fileUploadBlock {
+    margin-top: 12px;
+}
+
+.fileHelper {
+    min-height: 25px;
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    margin-bottom: 8px;
+    border: 1px solid #f1c232;
+    border-radius: 4px;
+    background: #fffbea;
+    color: #8a6200;
+    font-size: 11px;
+}
+
+.uploadLabel {
+    margin-bottom: 6px;
+}
+
+.uploadZone {
+    position: relative;
+    min-height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #c7ced8;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.hiddenFileInput {
+    display: none;
+}
+
+.uploadButton {
+    min-height: 24px;
+    padding: 3px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.fileList {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.fileRow {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: 48px 1fr 30px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border: 1px solid #d6deea;
+    border-radius: 5px;
+    background: #f8fafc;
+}
+
+.fileThumbnail {
+    width: 38px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 3px;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.fileThumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.fileName {
+    color: #263247;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fileRemove {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.captchaActions {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1px solid #e6ebf2;
+}
+
+.captchaBox {
+    width: 305px;
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 14px;
+    border: 1px solid #d8dee6;
+    border-radius: 3px;
+    background: #fafafa;
+    color: #111827;
+    font-size: 13px;
+}
+
+.captchaCheckbox {
+    width: 24px;
+    height: 24px;
+}
+
+.captchaLogo {
+    margin-left: auto;
+    color: #64748b;
+    font-size: 10px;
+    text-align: center;
+}
+
+.edol-btn {
+    min-height: 38px;
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: 0;
+    font: 800 14px/1 var(--edol-font);
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.edol-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.edol-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.edol-btn-primary {
+    background: var(--edol-red);
+    color: #fff;
+    box-shadow: 0 12px 20px rgba(236, 28, 36, 0.18);
+}
+
+.edol-btn-secondary {
+    background: #8ea5bd;
+    color: #fff;
+}
+
+.edol-link-button {
+    border: 0;
+    background: transparent;
+    color: var(--edol-red);
+    font: 500 18px/1 var(--edol-font);
+    cursor: pointer;
+}
+
+.edol-alert {
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.edol-alert-success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.edol-alert-error {
+    background: #fff1f2;
+    color: #b91c1c;
+    border: 1px solid #fecdd3;
+}
+
+.edolModalBackdrop,
+.edol-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    background: rgba(15, 23, 42, 0.46);
+}
+
+.edolModal,
+.edol-modal {
+    position: relative;
+    width: min(470px, 100%);
+    min-height: 312px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 54px 48px 30px;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 30px 70px rgba(15, 23, 42, 0.28);
+    text-align: center;
+}
+
+.edolModalClose,
+.edol-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.edolModalIcon,
+.edol-modal-icon {
+    width: 68px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    background: #f59e0b;
+    color: #ffffff;
+    font-size: 34px;
+    font-weight: 900;
+    padding-top: 14px;
+}
+
+.edolModal h2,
+.edol-modal-message {
+    max-width: 330px;
+    margin: 0;
+    color: #3f3f46;
+    font: 400 24px/1.25 var(--edol-font);
+}
+
+.edolModalActions,
+.edol-modal-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 58px;
+}
+
+.modalCancel,
+.modalOk {
+    min-width: 72px;
+    min-height: 34px;
+    border-radius: 5px;
+    font: 500 14px/1 var(--edol-font);
+    cursor: pointer;
+}
+
+.modalCancel {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+}
+
+.modalOk {
+    border: 1px solid var(--edol-red);
+    background: var(--edol-red);
+    color: #ffffff;
+}
+
+.homePage {
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.homePage .backgroundOverlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 27% 53%, rgba(255, 255, 205, 0.36), transparent 29%), linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.25));
+    pointer-events: none;
+}
+
+.homePage .portalHeader {
+    position: relative;
+    height: 76px;
+    padding: 14px 44px 0 44px;
+}
+
+.homePage .logo {
+    width: 255px;
+    max-width: 255px;
+}
+
+.homePage .hero {
+    position: relative;
+    z-index: 2;
+    min-height: calc(100vh - 76px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    align-items: center;
+    gap: 74px;
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 40px 56px 100px;
+}
+
+.homePage .heroContent {
+    max-width: 600px;
+}
+
+.homePage .heroContent h1 {
+    margin: 0;
+    color: var(--edol-red);
+    font: 900 56px/1.16 var(--edol-font);
+    letter-spacing: -0.04em;
+}
+
+.homePage .heroContent p {
+    margin: 22px 0 0;
+    color: #26384d;
+    font: 400 18px/1.55 var(--edol-font);
+    max-width: 420px;
+}
+
+.homePage .actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.homePage .visualWrap {
+    display: flex;
+    justify-content: center;
+}
+
+.homePage .visualCircle {
+    width: 342px;
+    height: 460px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 8px solid #ffffff;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.22);
+    background: #fff;
+    padding: 0;
+}
+
+.homePage .visualCircle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 999px;
+}
+
+.unavailableCard {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 46px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--edol-shadow);
+    text-align: center;
+}
+
+.unavailableCard .icon {
+    width: 62px;
+    height: 62px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 999px;
+    background: var(--edol-soft-red);
+    color: var(--edol-red);
+    font-size: 26px;
+}
+
+.unavailableCard h1 {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-size: 25px;
+}
+
+.unavailableCard p {
+    margin: 0 0 24px;
+    color: #64748b;
+}
+
+@media (max-width: 1180px) {
+    .categoryGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .homePage .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .homePage .heroContent p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .homePage .actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 720px) {
+    .portalHeader {
+        height: 76px;
+        padding: 16px 18px 0;
+    }
+
+    .logo,
+    .homePage .logo {
+        width: 180px;
+    }
+
+    .heroHeader {
+        height: 285px;
+    }
+
+    .heroHeader h1 {
+        top: 136px;
+        font-size: 24px;
+    }
+
+    .edol-main,
+    .formContent {
+        padding: 44px 18px 70px;
+    }
+
+    .progressPath {
+        column-gap: 10px;
+        margin-bottom: 34px;
+    }
+
+    .categoryGrid,
+    .edol-grid-2,
+    .formSection {
+        grid-template-columns: 1fr;
+    }
+
+    .categoryCard {
+        height: auto;
+        min-height: 154px;
+        grid-template-columns: 50px minmax(0, 1fr);
+        padding: 22px 20px 50px;
+    }
+
+    .captchaActions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .captchaBox {
+        width: 100%;
+    }
+
+    .homePage .hero {
+        padding: 44px 20px 70px;
+    }
+
+    .homePage .heroContent h1 {
+        font-size: 38px;
+    }
+
+    .homePage .visualCircle {
+        width: min(340px, 86vw);
+        height: min(340px, 86vw);
+    }
+}
+
+.edol-captcha-wrapper {
+    margin-top: 18px;
+    margin-bottom: 14px;
+    width: 100%;
+}
+
+.edol-captcha-frame {
+    width: 320px;
+    height: 96px;
+    border: 0;
+    display: block;
+    background: transparent;
+}
+
+.edol-captcha-error {
+    margin-top: 8px;
+    color: #ed1c24;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.edol-language {
+    position: relative;
+    z-index: 50;
+    font-family: var(--edol-font-family, Montserrat, Arial, sans-serif);
+}
+
+.edol-language__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #061b3a;
+    cursor: pointer;
+    font: inherit;
+    box-shadow: 0 8px 20px rgba(2, 18, 46, 0.08);
+}
+
+.edol-language__trigger:hover,
+.edol-language__trigger:focus {
+    background: rgba(255, 255, 255, 0.94);
+    outline: none;
+}
+
+.edol-language__flag {
+    width: 22px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex: 0 0 auto;
+}
+
+.edol-language__label {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.edol-language__chevron {
+    color: #9aa8b9;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.edol-language__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 180px;
+    padding: 8px;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 18px 42px rgba(2, 18, 46, 0.18);
+    border: 1px solid rgba(6, 27, 58, 0.08);
+}
+
+.edol-language__option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #061b3a;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.edol-language__option:hover,
+.edol-language__option--active {
+    background: #fff0f0;
+}
+
+.edol-page[dir="rtl"] .edol-language__menu {
+    right: 0;
+    left: auto;
+}
+
+.edol-phone {
+    position: relative;
+    width: 100%;
+}
+
+.edol-phone__field {
+    display: flex;
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid #cad6e6;
+    border-radius: 7px;
+    background: #f7f9fc;
+    overflow: visible;
+}
+
+.edol-phone__flag-button {
+    width: 64px;
+    flex: 0 0 64px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 0;
+    border-right: 1px solid #cad6e6;
+    background: #f7f9fc;
+    cursor: pointer;
+    border-radius: 7px 0 0 7px;
+}
+
+.edol-page[dir="rtl"] .edol-phone__flag-button {
+    border-right: 0;
+    border-left: 1px solid #cad6e6;
+    border-radius: 0 7px 7px 0;
+}
+
+.edol-phone__flag,
+.edol-phone__option-flag {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.edol-phone__chevron {
+    color: #5b6b82;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.edol-phone__number-box {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.edol-phone__prefix {
+    flex: 0 0 auto;
+    padding: 0 12px 0 14px;
+    color: #60708a;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.edol-page[dir="rtl"] .edol-phone__prefix {
+    padding: 0 14px 0 12px;
+}
+
+.edol-phone__input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    height: 40px;
+    color: #061b3a;
+    font: inherit;
+    padding: 0 12px 0 0;
+}
+
+.edol-page[dir="rtl"] .edol-phone__input {
+    padding: 0 0 0 12px;
+    text-align: right;
+}
+
+.edol-phone__input::placeholder {
+    color: #a8b4c5;
+}
+
+.edol-phone__dropdown {
+    position: absolute;
+    z-index: 80;
+    top: calc(100% + 6px);
+    left: 0;
+    width: min(360px, 100%);
+    max-height: 275px;
+    overflow: auto;
+    background: #ffffff;
+    border: 1px solid #d8e0ec;
+    border-radius: 8px;
+    box-shadow: 0 18px 40px rgba(2, 18, 46, 0.18);
+    padding: 6px;
+}
+
+.edol-page[dir="rtl"] .edol-phone__dropdown {
+    left: auto;
+    right: 0;
+}
+
+.edol-phone__option {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #061b3a;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.edol-phone__option:hover,
+.edol-phone__option:focus {
+    background: #f4f7fb;
+    outline: none;
+}
+
+.edol-phone__option-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.edol-phone__option-code {
+    color: #42536d;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.edol-page[dir="rtl"] .edol-phone__option {
+    text-align: right;
+    grid-template-columns: auto 1fr 30px;
+}
+
+.edol-language {
+    position: relative;
+    z-index: 200;
+    pointer-events: auto;
+}
+
+.edol-language__button,
+.edol-language__option {
+    pointer-events: auto;
+}
+
+.edol-language__dropdown {
+    z-index: 5000;
+}
+
+.edol-phone {
+    position: relative;
+    width: 100%;
+    z-index: 20;
+}
+
+.edol-phone__field {
+    display: flex;
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--edol-border);
+    border-radius: 8px;
+    background: #f7f8fb;
+    overflow: visible;
+}
+
+.edol-phone__flag-button {
+    width: 58px;
+    min-width: 58px;
+    height: 42px;
+    border: 0;
+    border-right: 1px solid var(--edol-border);
+    background: #f7f8fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    border-radius: 8px 0 0 8px;
+    padding: 0;
+    pointer-events: auto;
+}
+
+.edol-phone__flag-button:hover,
+.edol-phone__flag-button:focus {
+    background: #ffffff;
+    outline: 2px solid rgba(228, 31, 38, 0.18);
+    outline-offset: -2px;
+}
+
+.edol-phone__flag,
+.edol-phone__option-flag {
+    width: 24px;
+    min-width: 24px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    line-height: 1;
+    overflow: hidden;
+}
+
+.edol-phone__chevron {
+    font-size: 12px;
+    color: #5f6f86;
+    line-height: 1;
+}
+
+.edol-phone__number-box {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    background: #f7f8fb;
+    border-radius: 0 8px 8px 0;
+}
+
+.edol-phone__prefix {
+    padding: 0 12px;
+    color: #48617f;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.edol-phone__input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    border: 0;
+    background: transparent;
+    color: var(--edol-navy);
+    padding: 0 12px 0 0;
+    font: inherit;
+    outline: 0;
+}
+
+.edol-phone__dropdown {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 360px;
+    max-width: min(360px, 90vw);
+    max-height: 300px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid rgba(14, 36, 65, 0.08);
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, 0.16);
+    z-index: 6000;
+    padding: 6px 0;
+}
+
+.edol-phone__option {
+    width: 100%;
+    min-height: 38px;
+    border: 0;
+    background: #ffffff;
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: var(--edol-navy);
+    pointer-events: auto;
+}
+
+.edol-phone__option:hover,
+.edol-phone__option--selected {
+    background: #f5f7fb;
+}
+
+.edol-phone__option-country {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.edol-phone__option-code {
+    font-weight: 700;
+    color: var(--edol-navy);
+}
+
+[dir="rtl"] .edol-phone__flag-button {
+    border-right: 0;
+    border-left: 1px solid var(--edol-border);
+    border-radius: 0 8px 8px 0;
+}
+
+[dir="rtl"] .edol-phone__number-box {
+    border-radius: 8px 0 0 8px;
+}
+
+[dir="rtl"] .edol-phone__input {
+    padding: 0 0 0 12px;
+    text-align: right;
+}
+
+[dir="rtl"] .edol-phone__dropdown {
+    left: auto;
+    right: 0;
+}
+
+[dir="rtl"] .edol-phone__option {
+    text-align: right;
+}
+
+.edol-lang {
+    position: relative;
+    display: inline-block;
+    z-index: 10000;
+    font-family: var(--edol-font-family, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+}
+
+.edol-lang__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
+    color: #061735;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.edol-lang__button:focus,
+.edol-lang__button:focus-visible,
+.edol-lang__option:focus,
+.edol-lang__option:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.22), 0 10px 24px rgba(15, 23, 42, 0.10);
+}
+
+.edol-lang__flag {
+    width: 24px;
+    height: 17px;
+    display: block;
+    flex: 0 0 auto;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.edol-lang__label {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.edol-lang__chevron {
+    color: #8fa0b8;
+    font-size: 14px;
+    line-height: 1;
+    margin-left: 2px;
+}
+
+.edol-lang__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 170px;
+    padding: 8px;
+    border: 0;
+    border-radius: 9px;
+    background: #ffffff;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+    z-index: 10001;
+}
+
+.edol-lang__option {
+    width: 100%;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #061735;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: left;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.edol-lang__option:hover,
+.edol-lang__option--active {
+    background: #fff0f0;
+}
+
+.edol-phone {
+    position: relative;
+    width: 100%;
+    min-height: 46px;
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #cbd7e6;
+    border-radius: 7px;
+    background: #f6f8fb;
+    overflow: visible;
+    font-family: var(--edol-font-family, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+}
+
+.edol-phone:focus-within {
+    border-color: #b8c8dc;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.10);
+}
+
+.edol-phone__flag-button {
+    width: 58px;
+    min-width: 58px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 0;
+    border-right: 1px solid #d8e1ec;
+    border-radius: 7px 0 0 7px;
+    background: #ffffff;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.edol-phone__flag-button:focus,
+.edol-phone__flag-button:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(227, 6, 19, 0.22);
+}
+
+.edol-phone__flag-img {
+    width: 25px;
+    height: 18px;
+    display: block;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.10);
+}
+
+.edol-phone__chevron {
+    color: #8fa0b8;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.edol-phone__prefix {
+    min-width: 58px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #526988;
+    font-size: 14px;
+    font-weight: 600;
+    border-right: 1px solid #d8e1ec;
+    background: #f6f8fb;
+}
+
+.edol-phone__number {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 0 7px 7px 0;
+    background: #f6f8fb;
+    color: #061735;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+}
+
+.edol-phone__number::placeholder {
+    color: #a8b4c5;
+}
+
+.edol-phone__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 355px;
+    max-width: min(355px, calc(100vw - 48px));
+    max-height: 330px;
+    overflow-y: auto;
+    padding: 6px 0;
+    border: 1px solid #d8e1ec;
+    border-radius: 0 0 7px 7px;
+    background: #ffffff;
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.14);
+    z-index: 9999;
+}
+
+.edol-phone__option {
+    width: 100%;
+    min-height: 38px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    border: 0;
+    background: #ffffff;
+    color: #061735;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: left;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.edol-phone__option:hover,
+.edol-phone__option--selected {
+    background: #f4f7fb;
+}
+
+.edol-phone__option-flag {
+    width: 25px;
+    height: 18px;
+    display: block;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.10);
+}
+
+.edol-phone__option-country {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.edol-phone__option-code {
+    color: #061735;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+[dir="rtl"] .edol-lang__menu {
+    right: auto;
+    left: 0;
+}
+
+[dir="rtl"] .edol-lang__option {
+    text-align: right;
+}
+
+[dir="rtl"] .edol-phone__flag-button {
+    border-right: 0;
+    border-left: 1px solid #d8e1ec;
+    border-radius: 0 7px 7px 0;
+}
+
+[dir="rtl"] .edol-phone__prefix {
+    border-right: 0;
+    border-left: 1px solid #d8e1ec;
+}
+
+[dir="rtl"] .edol-phone__number {
+    border-radius: 7px 0 0 7px;
+    text-align: right;
+}
+
+[dir="rtl"] .edol-phone__dropdown {
+    left: auto;
+    right: 0;
+}
+
+@media (max-width: 640px) {
+    .edol-lang__button {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 14px;
+    }
+
+    .edol-lang__menu {
+        min-width: 150px;
+    }
+
+    .edol-phone__dropdown {
+        width: 300px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE FIXES ONLY - added at the end of the file
+   Keeps existing desktop styling and working selectors intact
+   ========================================================= */
+
+@media (max-width: 1180px) {
+    .edol-main,
+    .formContent {
+        max-width: 100%;
+    }
+
+    .sectionHeader,
+    .categoryGrid,
+    .progressPath {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+    .edol-form-card {
+        padding: 34px 30px 38px;
+    }
+
+    .homePage .hero {
+        gap: 34px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+    .homePage .heroContent h1 {
+        font-size: 48px;
+    }
+}
+
+@media (max-width: 720px) {
+    .portalHeader,
+    .homePage .portalHeader {
+        height: 76px;
+        padding: 14px 18px 0;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .logoWrap {
+        min-width: 0;
+        margin-left: 0;
+        flex: 0 1 auto;
+    }
+
+    .logo,
+    .homePage .logo {
+        width: 170px;
+        max-width: 45vw;
+    }
+
+    .languageWrapper {
+        min-width: 0;
+        flex: 0 0 auto;
+    }
+
+    .languageButton,
+    .edol-lang__button,
+    .edol-language__trigger {
+        max-width: 146px;
+        min-height: 36px;
+        height: 36px;
+        padding: 0 10px;
+        gap: 7px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .languageFlag,
+    .edol-lang__flag,
+    .edol-language__flag {
+        flex: 0 0 auto;
+    }
+
+    .languageMenu,
+    .edol-lang__menu,
+    .edol-language__menu {
+        right: 0;
+        left: auto;
+        max-width: calc(100vw - 28px);
+    }
+
+    .heroHeader h1 {
+        width: calc(100vw - 40px);
+        max-width: calc(100vw - 40px);
+        text-align: center;
+        white-space: normal;
+        line-height: 1.15;
+    }
+
+    .formContent {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .edol-form-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 28px 22px 32px;
+    }
+
+    .quickPreviewHeader {
+        grid-template-columns: 1fr;
+        row-gap: 14px;
+    }
+
+    .quickPreviewHeader .quickPreviewCopy {
+        order: 1;
+    }
+
+    .backButton {
+        order: 2;
+    }
+
+    .formPage .previewCard .categoryCard,
+    .formPreviewCard .categoryCard {
+        height: auto;
+        min-height: 104px;
+        padding: 20px 20px;
+    }
+
+    .ticketBox,
+    .fileUploadBlock,
+    .uploadZone,
+    .fileList,
+    .captchaActions,
+    .edol-captcha-wrapper {
+        max-width: 100%;
+    }
+
+    .ticketInputRow {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .fileRow {
+        grid-template-columns: 42px minmax(0, 1fr) 28px;
+    }
+
+    .captchaActions {
+        width: 100%;
+    }
+
+    .captchaBox,
+    .edol-captcha-frame {
+        max-width: 100%;
+    }
+
+    .edolModal,
+    .edol-modal {
+        width: min(470px, calc(100vw - 32px));
+        padding: 46px 26px 26px;
+    }
+}
+
+@media (max-width: 520px) {
+    .edol-page,
+    .homePage,
+    .formPage,
+    .categoryPage,
+    .unavailablePage {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .portalHeader,
+    .homePage .portalHeader {
+        padding: 12px 14px 0;
+    }
+
+    .logo,
+    .homePage .logo {
+        width: 145px;
+        max-width: calc(100vw - 180px);
+    }
+
+    .languageButton,
+    .edol-lang__button,
+    .edol-language__trigger {
+        max-width: 132px;
+        height: 36px;
+        min-height: 36px;
+        padding: 0 9px;
+        gap: 6px;
+        font-size: 13px;
+    }
+
+    .languageCode,
+    .edol-lang__label,
+    .edol-language__label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .edol-lang__flag,
+    .edol-language__flag {
+        width: 22px;
+        height: 16px;
+    }
+
+    .languageFlag {
+        font-size: 19px;
+    }
+
+    .chevron,
+    .edol-lang__chevron,
+    .edol-language__chevron {
+        font-size: 12px;
+        margin-left: 0;
+    }
+
+    .heroHeader {
+        height: 270px;
+    }
+
+    .heroHeader h1 {
+        top: 140px;
+        font-size: 22px;
+    }
+
+    .edol-main,
+    .formContent {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .sectionHeader h1,
+    .edol-title {
+        font-size: 24px;
+    }
+
+    .sectionHeader p,
+    .edol-subtitle {
+        font-size: 14px;
+    }
+
+    .progressPath {
+        column-gap: 4px;
+    }
+
+    .progressStep {
+        font-size: 11px;
+    }
+
+    .stepLabel {
+        white-space: normal;
+    }
+
+    .edol-form-card {
+        padding: 24px 16px 28px;
+        border-radius: 12px;
+    }
+
+    .homePage .hero {
+        min-height: auto;
+        align-items: start;
+        padding: 54px 20px 64px;
+        gap: 26px;
+    }
+
+    .homePage .heroContent h1 {
+        font-size: 34px;
+        line-height: 1.15;
+    }
+
+    .homePage .heroContent p {
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .homePage .actions {
+        margin-top: 24px;
+    }
+
+    .categoryCard {
+        grid-template-columns: 46px minmax(0, 1fr);
+        column-gap: 14px;
+        padding: 20px 18px 48px;
+    }
+
+    .categoryIcon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .categoryCard h3 {
+        font-size: 15px;
+    }
+
+    .categoryCard p {
+        font-size: 13px;
+    }
+
+    .openButton {
+        right: 18px;
+    }
+
+    .categoryPage.edol-force-rtl .openButton {
+        left: 18px;
+    }
+
+    .edol-phone,
+    .edol-phone-control {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .edol-phone__flag-button {
+        width: 50px;
+        min-width: 50px;
+        flex: 0 0 50px;
+    }
+
+    .edol-phone__prefix {
+        min-width: 48px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-size: 13px;
+    }
+
+    .edol-phone__number,
+    .edol-phone__input,
+    .edol-phone-number {
+        min-width: 0;
+        font-size: 14px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .edol-phone-prefix {
+        width: 50px;
+        flex-basis: 50px;
+    }
+
+    .edol-phone-dropdown,
+    .edol-phone__dropdown {
+        width: min(320px, calc(100vw - 38px));
+        max-width: calc(100vw - 38px);
+    }
+
+    .ticketBox {
+        padding: 14px;
+    }
+
+    .ticketInputRow {
+        grid-template-columns: 1fr;
+    }
+
+    .captchaActions {
+        margin-top: 28px;
+        padding-top: 18px;
+    }
+
+    .edol-captcha-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .captchaBox {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 380px) {
+    .portalHeader,
+    .homePage .portalHeader {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .logo,
+    .homePage .logo {
+        width: 128px;
+        max-width: calc(100vw - 162px);
+    }
+
+    .languageButton,
+    .edol-lang__button,
+    .edol-language__trigger {
+        max-width: 124px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-size: 13px;
+    }
+
+    .edol-main,
+    .formContent {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .edol-form-card {
+        padding: 22px 12px 26px;
+    }
+
+    .heroHeader h1 {
+        font-size: 20px;
+    }
+
+    .homePage .heroContent h1 {
+        font-size: 30px;
+    }
+
+    .edol-phone__flag-button {
+        width: 46px;
+        min-width: 46px;
+        flex-basis: 46px;
+    }
+
+    .edol-phone__prefix {
+        min-width: 44px;
+        font-size: 12px;
+    }
+
+    .edol-phone__flag-img,
+    .edol-phone__option-flag {
+        width: 23px;
+        height: 16px;
+    }
+
+    .edol-phone__number,
+    .edol-phone__input,
+    .edol-phone-number {
+        font-size: 13px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .edol-btn {
+        width: 100%;
+    }
+
+    .edolModalActions,
+    .edol-modal-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .modalCancel,
+    .modalOk {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   FINAL MOBILE CLEANUP ONLY
+   - phone controls fit exactly inside the form width
+   - language selector scales down with the logo on small screens
+   - typography weight is softened for a cleaner look
+   ========================================================= */
+
+/* Softer typography, closer to the lighter original-site look */
+.edol-title,
+.sectionHeader h1,
+.quickPreviewHeader h1,
+.heroHeader h1,
+.homePage .heroContent h1,
+.categoryCard h3,
+.openButton,
+.edol-btn,
+.languageCode,
+.edol-lang__label,
+.edol-language__label {
+    font-weight: 700;
+}
+
+.categoryCard p,
+.sectionHeader p,
+.edol-subtitle,
+.homePage .heroContent p,
+.quickPreviewHeader p,
+.edol-label,
+.edol-input,
+.edol-select,
+.edol-textarea,
+.edol-phone__number,
+.edol-phone__input,
+.edol-phone-number {
+    font-weight: 400;
+}
+
+/* Make every phone implementation respect the exact same width as normal fields */
+.edol-phone,
+.edol-phone-control,
+.edol-phone__field {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.edol-phone__number,
+.edol-phone__input,
+.edol-phone-number {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+}
+
+@media (max-width: 720px) {
+    /* Header: keep logo + language selector on the same line without collision */
+    .portalHeader,
+    .homePage .portalHeader {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .logoWrap {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .languageWrapper {
+        flex: 0 0 auto;
+        min-width: 0;
+    }
+
+    .languageButton,
+    .edol-lang__button,
+    .edol-language__trigger {
+        width: auto;
+        max-width: 128px;
+        height: 34px;
+        min-height: 34px;
+        padding: 0 8px;
+        gap: 5px;
+        font-size: 13px;
+        border-radius: 7px;
+    }
+
+    .languageFlag {
+        font-size: 17px;
+    }
+
+    .edol-lang__flag,
+    .edol-language__flag {
+        width: 20px;
+        height: 14px;
+    }
+
+    .chevron,
+    .edol-lang__chevron,
+    .edol-language__chevron {
+        font-size: 11px;
+    }
+
+    .languageMenu,
+    .edol-lang__menu,
+    .edol-language__menu {
+        min-width: 140px;
+    }
+
+    /* Phone controls: compact columns so the full field fits like the other inputs */
+    .edol-phone {
+        display: grid;
+        grid-template-columns: 46px 44px minmax(0, 1fr);
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: visible;
+    }
+
+    .edol-phone__field {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 46px 44px minmax(0, 1fr);
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .edol-phone__flag-button {
+        width: 46px;
+        min-width: 0;
+        flex: 0 0 46px;
+        height: 44px;
+        padding: 0;
+    }
+
+    .edol-phone__prefix {
+        width: 44px;
+        min-width: 0;
+        height: 44px;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    .edol-phone__number,
+    .edol-phone__input {
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        padding: 0 9px;
+        font-size: 13px;
+    }
+
+    .edol-phone__flag-img,
+    .edol-phone__flag,
+    .edol-phone__option-flag {
+        width: 21px;
+        min-width: 21px;
+        height: 15px;
+        font-size: 18px;
+    }
+
+    .edol-phone-control {
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr);
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .edol-phone-prefix {
+        width: 46px;
+        flex-basis: 46px;
+        min-width: 0;
+    }
+
+    .edol-phone-number {
+        width: 100%;
+        min-width: 0;
+        padding-left: 9px;
+        padding-right: 9px;
+        font-size: 13px;
+    }
+
+    .edol-phone__dropdown,
+    .edol-phone-dropdown {
+        width: min(300px, calc(100vw - 40px));
+        max-width: calc(100vw - 40px);
+    }
+}
+
+@media (max-width: 520px) {
+    .logo,
+    .homePage .logo {
+        width: 138px;
+        max-width: calc(100vw - 160px);
+    }
+
+    .languageButton,
+    .edol-lang__button,
+    .edol-language__trigger {
+        max-width: 118px;
+        height: 32px;
+        min-height: 32px;
+        padding: 0 7px;
+        gap: 4px;
+        font-size: 12px;
+    }
+
+    .edol-lang__flag,
+    .edol-language__flag {
+        width: 19px;
+        height: 13px;
+    }
+
+    .languageFlag {
+        font-size: 16px;
+    }
+
+    .languageMenu,
+    .edol-lang__menu,
+    .edol-language__menu {
+        min-width: 132px;
+    }
+}
+
+@media (max-width: 380px) {
+    .logo,
+    .homePage .logo {
+        width: 126px;
+        max-width: calc(100vw - 146px);
+    }
+
+    .languageButton,
+    .edol-lang__button,
+    .edol-language__trigger {
+        max-width: 108px;
+        height: 30px;
+        min-height: 30px;
+        font-size: 11px;
+    }
+
+    .edol-lang__flag,
+    .edol-language__flag {
+        width: 18px;
+        height: 12px;
+    }
+
+    .languageFlag {
+        font-size: 15px;
+    }
+
+    .edol-phone {
+        grid-template-columns: 42px 40px minmax(0, 1fr);
+    }
+
+    .edol-phone__field {
+        grid-template-columns: 42px 40px minmax(0, 1fr);
+    }
+
+    .edol-phone__flag-button {
+        width: 42px;
+        flex-basis: 42px;
+    }
+
+    .edol-phone__prefix {
+        width: 40px;
+        font-size: 11px;
+    }
+
+    .edol-phone__number,
+    .edol-phone__input,
+    .edol-phone-number {
+        font-size: 12px;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+}
+
+/* =========================================================
+   FINAL FIX: stable portal header + language selector position
+   This keeps the header/logo/language selector in the same place
+   across home, category and form pages at the same viewport size.
+   ========================================================= */
+.edol-page,
+.formPage,
+.categoryPage,
+.homePage,
+.unavailablePage {
+    position: relative;
+}
+
+c-e-dol-portal-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: block;
+    height: 88px;
+    pointer-events: none;
+}
+
+.heroHeader c-e-dol-portal-header,
+.formPage > c-e-dol-portal-header,
+.homePage > c-e-dol-portal-header {
+    top: 0;
+}
+
+.homePage .hero {
+    min-height: 100vh;
+    padding-top: 110px;
+}
+
+@media (max-width: 720px) {
+    c-e-dol-portal-header {
+        height: 76px;
+    }
+
+    .homePage .hero {
+        min-height: 100vh;
+        padding-top: 92px;
+    }
+}
+
+@media (max-width: 520px) {
+    .homePage .hero {
+        padding-top: 84px;
+    }
+}
+
+
+/* Submission completion page */
+.edol-success-page {
+    width: 100%;
+    text-align: center;
+}
+
+.edol-success-icon {
+    width: 62px;
+    height: 62px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    border-radius: 999px;
+    background: var(--edol-soft-red);
+    color: var(--edol-red);
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.edol-success-page h1 {
+    margin: 0 0 12px;
+    color: #06142d;
+    font: 700 27px/1.25 var(--edol-font);
+    letter-spacing: -0.02em;
+}
+
+.edol-success-page p {
+    max-width: 560px;
+    margin: 0 auto 10px;
+    color: #40506a;
+    font: 400 15px/1.5 var(--edol-font);
+}
+
+.edol-success-reference {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px !important;
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: #f6f8fb;
+    color: #06142d !important;
+    font-weight: 700 !important;
+}
+
+.edol-success-email {
+    margin-top: 16px !important;
+    color: #64748b !important;
+}
+
+.edol-success-actions {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 720px) {
+    .edol-success-icon {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 20px;
+        font-size: 26px;
+    }
+
+    .edol-success-page h1 {
+        font-size: 22px;
+    }
+
+    .edol-success-page p {
+        font-size: 14px;
+    }
+
+    .edol-success-actions .edol-btn {
+        width: 100%;
+    }
+}
+
+/* FINAL POLISH: full-bleed Experience Cloud wrapper compensation.
+   This removes the visible spacing/borders caused by the standard site layout column padding. */
+.edol-page,
+.homePage,
+.formPage,
+.categoryPage,
+.unavailablePage {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+}
+
+/* FINAL POLISH: cleaner language selector, closer to the original site style. */
+.portalHeader .languageWrapper,
+.homePage .languageWrapper,
+.formPage .languageWrapper,
+.categoryPage .languageWrapper,
+.unavailablePage .languageWrapper {
+    min-width: auto;
+}
+
+.portalHeader .languageButton,
+.portalHeader .edol-lang__button,
+.portalHeader .edol-language__trigger,
+.homePage .languageButton,
+.homePage .edol-lang__button,
+.homePage .edol-language__trigger,
+.formPage .languageButton,
+.formPage .edol-lang__button,
+.formPage .edol-language__trigger,
+.categoryPage .languageButton,
+.categoryPage .edol-lang__button,
+.categoryPage .edol-language__trigger,
+.unavailablePage .languageButton,
+.unavailablePage .edol-lang__button,
+.unavailablePage .edol-language__trigger {
+    min-height: 32px !important;
+    padding: 4px 8px !important;
+    gap: 6px !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #122033 !important;
+    font: 400 14px/1.2 var(--edol-font) !important;
+}
+
+.portalHeader .languageButton:hover,
+.portalHeader .languageButton.open,
+.portalHeader .edol-lang__button:hover,
+.portalHeader .edol-language__trigger:hover,
+.portalHeader .edol-language__trigger:focus,
+.homePage .languageButton:hover,
+.homePage .languageButton.open,
+.homePage .edol-lang__button:hover,
+.homePage .edol-language__trigger:hover,
+.formPage .languageButton:hover,
+.formPage .languageButton.open,
+.formPage .edol-lang__button:hover,
+.formPage .edol-language__trigger:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.portalHeader .languageCode,
+.portalHeader .edol-lang__label,
+.portalHeader .edol-language__label,
+.homePage .languageCode,
+.homePage .edol-lang__label,
+.homePage .edol-language__label,
+.formPage .languageCode,
+.formPage .edol-lang__label,
+.formPage .edol-language__label,
+.categoryPage .languageCode,
+.categoryPage .edol-lang__label,
+.categoryPage .edol-language__label,
+.unavailablePage .languageCode,
+.unavailablePage .edol-lang__label,
+.unavailablePage .edol-language__label {
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    color: #122033 !important;
+}
+
+.portalHeader .languageFlag,
+.portalHeader .edol-lang__flag,
+.portalHeader .edol-language__flag,
+.homePage .languageFlag,
+.homePage .edol-lang__flag,
+.homePage .edol-language__flag,
+.formPage .languageFlag,
+.formPage .edol-lang__flag,
+.formPage .edol-language__flag,
+.categoryPage .languageFlag,
+.categoryPage .edol-lang__flag,
+.categoryPage .edol-language__flag,
+.unavailablePage .languageFlag,
+.unavailablePage .edol-lang__flag,
+.unavailablePage .edol-language__flag {
+    width: 22px !important;
+    height: 15px !important;
+    object-fit: cover !important;
+    border-radius: 1px !important;
+    box-shadow: none !important;
+}
+
+.portalHeader .chevron,
+.portalHeader .edol-lang__chevron,
+.portalHeader .edol-language__chevron,
+.homePage .chevron,
+.homePage .edol-lang__chevron,
+.homePage .edol-language__chevron,
+.formPage .chevron,
+.formPage .edol-lang__chevron,
+.formPage .edol-language__chevron {
+    font-size: 13px !important;
+    color: #7a879a !important;
+    margin-left: 0 !important;
+}
+
+.portalHeader .languageMenu,
+.portalHeader .edol-lang__menu,
+.portalHeader .edol-language__menu,
+.homePage .languageMenu,
+.homePage .edol-lang__menu,
+.homePage .edol-language__menu,
+.formPage .languageMenu,
+.formPage .edol-lang__menu,
+.formPage .edol-language__menu {
+    top: 36px !important;
+    width: 142px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+@media (max-width: 720px) {
+    .portalHeader .languageButton,
+    .portalHeader .edol-lang__button,
+    .portalHeader .edol-language__trigger,
+    .homePage .languageButton,
+    .homePage .edol-lang__button,
+    .homePage .edol-language__trigger,
+    .formPage .languageButton,
+    .formPage .edol-lang__button,
+    .formPage .edol-language__trigger {
+        min-height: 30px !important;
+        padding: 3px 7px !important;
+        font-size: 13px !important;
+    }
+
+    .portalHeader .languageCode,
+    .portalHeader .edol-lang__label,
+    .portalHeader .edol-language__label,
+    .homePage .languageCode,
+    .homePage .edol-lang__label,
+    .homePage .edol-language__label,
+    .formPage .languageCode,
+    .formPage .edol-lang__label,
+    .formPage .edol-language__label {
+        font-size: 13px !important;
+    }
+
+    .portalHeader .languageFlag,
+    .portalHeader .edol-lang__flag,
+    .portalHeader .edol-language__flag,
+    .homePage .languageFlag,
+    .homePage .edol-lang__flag,
+    .homePage .edol-language__flag,
+    .formPage .languageFlag,
+    .formPage .edol-lang__flag,
+    .formPage .edol-language__flag {
+        width: 20px !important;
+        height: 14px !important;
+    }
+}
+
+/* FINAL EDGE FIX V2: compensate remaining Experience Cloud vertical wrapper padding.
+   Left/right is handled above; this removes the visible top/bottom gutters too. */
+.edol-page,
+.homePage,
+.formPage,
+.categoryPage,
+.unavailablePage {
+    margin-top: calc(-1 * var(--lwc-layoutVerticalPadding, 0.75rem)) !important;
+    margin-bottom: calc(-1 * var(--lwc-layoutVerticalPadding, 0.75rem)) !important;
+    min-height: calc(100vh + (2 * var(--lwc-layoutVerticalPadding, 0.75rem))) !important;
+}
+
+/* FINAL LANGUAGE SELECTOR V2: actual selector component classes.
+   The previous style targeted older selector class names, so it did not affect the current component. */
+c-e-dol-language-selector,
+.portalHeader c-e-dol-language-selector {
+    pointer-events: auto;
+}
+
+/* =========================================================
+   FINAL VISUAL TUNE: smoother hero wave divider
+   Replaces the old angular polygon look with an SVG-style
+   curved divider using the existing .wave element.
+   ========================================================= */
+.wave {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: -1px !important;
+    width: 100% !important;
+    height: 166px !important;
+    background: transparent !important;
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
+    overflow: hidden !important;
+}
+
+.wave::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%23eaf0f6' fill-opacity='0.96' d='M0,66 C155,120 300,158 488,154 C660,150 815,116 982,92 C1125,72 1265,72 1440,90 L1440,220 L0,220 Z'/%3E%3C/svg%3E") !important;
+}
+
+@media (max-width: 720px) {
+    .wave {
+        height: 138px !important;
+    }
+}
+
+@media (max-width: 520px) {
+    .wave {
+        height: 118px !important;
+    }
+}
+
+
+/* TRACKING + PHONE UX PATCH: keep the home page from creating browser scrollbars on desktop. */
+.homePage {
+    overflow-x: hidden !important;
+}
+
+@media (min-width: 900px) {
+    .homePage {
+        min-height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    .homePage .hero {
+        max-width: min(1220px, 100%) !important;
+        min-height: 100vh !important;
+        padding-bottom: 58px !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* PHONE FORMAT PATCH: make the generated format placeholder readable. */
+.edol-phone__number::placeholder {
+    color: #9aa8bb !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+}
+
+/* =========================================================
+   FINAL SCROLL/HOME EDGE PATCH V4
+   Keep scrolling on the browser/page only and avoid the
+   bottom white strip on the home page.
+   ========================================================= */
+.homePage,
+.formPage,
+.categoryPage,
+.unavailablePage {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #eaf0f6 !important;
+    overflow-x: clip !important;
+}
+
+@supports not (overflow: clip) {
+    .homePage,
+    .formPage,
+    .categoryPage,
+    .unavailablePage {
+        overflow-x: hidden !important;
+    }
+}
+
+.homePage {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    overflow-y: visible !important;
+}
+
+.homePage .hero {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    box-sizing: border-box !important;
+    padding-bottom: max(58px, env(safe-area-inset-bottom)) !important;
+}
+
+@media (min-width: 900px) {
+    .homePage {
+        height: auto !important;
+        overflow-y: visible !important;
+    }
+
+    .homePage .hero {
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+    }
+}
+
+
+/* Centralized shared form validation, popup, celebration, and consent styles */
+.edol-error-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    background: rgba(15, 23, 42, 0.48);
+}
+
+.edol-error-popup {
+    position: relative;
+    width: min(460px, 100%);
+    padding: 34px 30px 26px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.28);
+    text-align: center;
+    font-family: var(--edol-font, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+}
+
+.edol-error-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.edol-error-popup-icon {
+    width: 58px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 999px;
+    background: #fff0f1;
+    color: #ec1c24;
+    font-size: 30px;
+    font-weight: 900;
+}
+
+.edol-error-popup h2 {
+    margin: 0 0 10px;
+    color: #06142d;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.edol-error-popup p {
+    margin: 0;
+    color: #40506a;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.edol-error-popup-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 26px;
+}
+
+.edol-error-popup-actions .edol-btn {
+    min-width: 96px;
+}
+
+@media (max-width: 640px) {
+    .edol-error-popup-backdrop {
+        align-items: flex-start;
+        padding: 82px 18px 18px;
+    }
+
+    .edol-error-popup {
+        padding: 32px 22px 24px;
+    }
+
+    .edol-error-popup h2 {
+        font-size: 20px;
+    }
+}
+
+
+
+
+.edol-field.edol-field-error .edol-input,
+.edol-field.edol-field-error .edol-select,
+.edol-field.edol-field-error .edol-textarea {
+    border-color: #ed1c24 !important;
+    background: #fff7f7 !important;
+    box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.10) !important;
+}
+
+.edol-field.edol-field-error c-e-dol-phone-input,
+.edol-field.edol-field-error c-e-dol-date-picker {
+    display: block;
+    border: 1px solid #ed1c24;
+    border-radius: 8px;
+    background: #fff7f7;
+    box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.10);
+}
+
+.edol-field.edol-field-error::after {
+    content: attr(data-error);
+    display: block;
+    margin-top: 6px;
+    color: #d71920;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+
+/* Final validation UX refinements */
+.edol-select.edol-select-placeholder {
+    color: #9aa7ba;
+}
+
+.edol-select option {
+    color: #1f2937;
+}
+
+.edol-select option[value=""] {
+    color: #9aa7ba;
+}
+
+.captchaActions {
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.edol-captcha-popup-only {
+    flex: 0 0 0;
+    width: 0;
+    height: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+}
+
+
+/* Temporary success celebration - safe to remove later */
+.edol-success-page {
+    position: relative;
+    overflow: hidden;
+}
+
+.edol-celebration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.edol-success-page > :not(.edol-celebration) {
+    position: relative;
+    z-index: 1;
+}
+
+.edol-celebration-piece {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    opacity: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+    color: #ed1c24;
+    animation: edolSuccessBurst 2.7s ease-out 0.12s both;
+}
+
+.edol-celebration-piece-1 { --edol-x: -260px; --edol-y: -170px; --edol-r: -28deg; animation-delay: 0.05s; color: #ed1c24; }
+.edol-celebration-piece-2 { --edol-x: -210px; --edol-y: 110px; --edol-r: 32deg; animation-delay: 0.10s; color: #ff5a77; }
+.edol-celebration-piece-3 { --edol-x: -150px; --edol-y: -220px; --edol-r: 52deg; animation-delay: 0.16s; color: #f7b731; }
+.edol-celebration-piece-4 { --edol-x: -95px; --edol-y: 175px; --edol-r: -40deg; animation-delay: 0.22s; color: #5da9ff; }
+.edol-celebration-piece-5 { --edol-x: -35px; --edol-y: -205px; --edol-r: 70deg; animation-delay: 0.07s; color: #31c48d; }
+.edol-celebration-piece-6 { --edol-x: 48px; --edol-y: 198px; --edol-r: -65deg; animation-delay: 0.14s; color: #ff5a77; }
+.edol-celebration-piece-7 { --edol-x: 110px; --edol-y: -188px; --edol-r: 18deg; animation-delay: 0.20s; color: #f7b731; }
+.edol-celebration-piece-8 { --edol-x: 170px; --edol-y: 135px; --edol-r: 74deg; animation-delay: 0.26s; color: #5da9ff; }
+.edol-celebration-piece-9 { --edol-x: 230px; --edol-y: -140px; --edol-r: -35deg; animation-delay: 0.11s; color: #31c48d; }
+.edol-celebration-piece-10 { --edol-x: 270px; --edol-y: 75px; --edol-r: 45deg; animation-delay: 0.18s; color: #ed1c24; }
+.edol-celebration-piece-11 { --edol-x: -295px; --edol-y: 25px; --edol-r: 78deg; animation-delay: 0.24s; color: #f7b731; }
+.edol-celebration-piece-12 { --edol-x: 300px; --edol-y: -15px; --edol-r: -78deg; animation-delay: 0.28s; color: #5da9ff; }
+
+@keyframes edolSuccessBurst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+    }
+    14% {
+        opacity: 1;
+    }
+    46% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--edol-x)), calc(-50% + var(--edol-y))) scale(1) rotate(var(--edol-r));
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--edol-x)), calc(-50% + var(--edol-y) + 42px)) scale(0.72) rotate(calc(var(--edol-r) + 75deg));
+    }
+}
+
+@media (max-width: 640px) {
+    .edol-celebration-piece {
+        font-size: 15px;
+        width: 18px;
+        height: 18px;
+    }
+
+    .edol-celebration-piece-1 { --edol-x: -130px; --edol-y: -150px; }
+    .edol-celebration-piece-2 { --edol-x: -120px; --edol-y: 90px; }
+    .edol-celebration-piece-3 { --edol-x: -75px; --edol-y: -185px; }
+    .edol-celebration-piece-4 { --edol-x: -55px; --edol-y: 145px; }
+    .edol-celebration-piece-5 { --edol-x: -20px; --edol-y: -170px; }
+    .edol-celebration-piece-6 { --edol-x: 32px; --edol-y: 155px; }
+    .edol-celebration-piece-7 { --edol-x: 70px; --edol-y: -155px; }
+    .edol-celebration-piece-8 { --edol-x: 98px; --edol-y: 105px; }
+    .edol-celebration-piece-9 { --edol-x: 125px; --edol-y: -110px; }
+    .edol-celebration-piece-10 { --edol-x: 135px; --edol-y: 45px; }
+    .edol-celebration-piece-11 { --edol-x: -145px; --edol-y: 10px; }
+    .edol-celebration-piece-12 { --edol-x: 145px; --edol-y: -10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edol-celebration-piece {
+        animation: none;
+        display: none;
+    }
+}
+
+
+/* Personal data consent checkbox */
+.edol-consent-field {
+    margin-top: 18px;
+}
+
+.edol-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #d5dce7;
+    border-radius: 10px;
+    background: #f7f9fc;
+    color: #172033;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.edol-checkbox {
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    accent-color: #ed1c24;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.edol-field.edol-field-error .edol-checkbox-label {
+    border-color: #ed1c24 !important;
+    background: #fff7f7 !important;
+    box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.10) !important;
+}
+
+
+/* Consent visibility safety */
+.edol-checkbox-label span {
+    display: inline !important;
+    color: #172033 !important;
+}
+
+.edol-checkbox-label .edol-required {
+    color: #ec1c24 !important;
+}
+
+
+/* Shared disabled / future action button */
+.edol-btn-disabled,
+.edol-btn[disabled],
+.edol-btn:disabled {
+    opacity: 0.62;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.edol-btn-disabled {
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    background: #cbd5e1 !important;
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   Track Complaint page
+   Centralized here so the follow-up page uses the same shell,
+   background, hero and card language as the complaint pages.
+   ========================================================= */
+.trackPage {
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--edol-bg, #eaf0f6);
+    color: var(--edol-text, #06142d);
+    font-family: var(--edol-font);
+}
+
+.trackPage .trackHeroBanner {
+    background-size: cover;
+    background-position: center 48%;
+    background-repeat: no-repeat;
+}
+
+.trackPage .trackFormContent {
+    max-width: 1510px;
+    padding-top: 72px;
+}
+
+.trackProgressPath {
+    margin-bottom: 50px;
+}
+
+.trackHero {
+    position: relative;
+    padding: 0 0 26px;
+    background: transparent;
+    overflow: visible;
+}
+
+.trackHeroInner {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 1080px);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.edol-back-mini {
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid rgba(217, 226, 236, 0.86);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--edol-text, #06142d);
+    font: 650 13px/1 var(--edol-font);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.edol-back-mini:hover {
+    transform: translateY(-1px);
+    border-color: rgba(236, 28, 36, 0.18);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+}
+
+.trackKicker {
+    margin: 0 0 8px;
+    color: var(--edol-red, #ec1c24);
+    font: 750 13px/1.2 var(--edol-font);
+    letter-spacing: 0.01em;
+}
+
+.trackHero h1 {
+    margin: 0 0 10px;
+    color: #000000;
+    font: 800 28px/1.2 var(--edol-font);
+    letter-spacing: -0.02em;
+}
+
+.trackSubtitle {
+    margin: 0;
+    max-width: 760px;
+    color: var(--edol-muted, #71809b);
+    font: 400 15px/1.5 var(--edol-font);
+}
+
+.trackContent {
+    width: min(100%, 1080px);
+    margin: 0 auto;
+    padding: 0 0 74px;
+}
+
+.trackCard {
+    position: relative;
+    width: 100%;
+    padding: 36px 38px;
+    border: 1px solid rgba(217, 226, 236, 0.72);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.trackCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--edol-red, #ec1c24), rgba(236, 28, 36, 0.25));
+}
+
+.trackIntro {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: start;
+    text-align: left;
+    margin: 0 0 28px;
+}
+
+.trackIcon {
+    grid-row: 1 / span 2;
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--edol-soft-red, #fff0f1);
+    color: var(--edol-red, #ec1c24);
+    font-size: 22px;
+    line-height: 1;
+}
+
+.trackIntro h2,
+.trackResult h2 {
+    margin: 0;
+    color: var(--edol-text, #06142d);
+    font: 800 22px/1.25 var(--edol-font);
+    letter-spacing: -0.015em;
+}
+
+.trackIntro p {
+    grid-column: 2;
+    margin: 8px 0 0;
+    max-width: 700px;
+    color: #40506a;
+    font: 400 14px/1.55 var(--edol-font);
+}
+
+.trackCard .edol-field {
+    margin: 0;
+}
+
+.trackCard .edol-label {
+    color: var(--edol-text, #06142d);
+    font-weight: 650;
+}
+
+.trackCard .edol-input {
+    min-height: 42px;
+    background: var(--edol-input-bg, #f7f9fc);
+}
+
+.trackActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 26px;
+    flex-wrap: wrap;
+}
+
+.trackActionsCentered {
+    justify-content: center;
+}
+
+.trackResult {
+    text-align: center;
+}
+
+.trackResultIcon {
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 850 24px/1 var(--edol-font);
+}
+
+.trackResultSuccess .trackResultIcon {
+    background: #e9fbf1;
+    color: #0c8a42;
+}
+
+.trackResultWarning .trackResultIcon {
+    background: #fff3d7;
+    color: #b06c00;
+}
+
+.trackResultText {
+    margin: 16px auto 0;
+    max-width: 680px;
+    color: #26384d;
+    font: 400 16px/1.65 var(--edol-font);
+}
+
+.trackResultText strong {
+    color: var(--edol-text, #06142d);
+    font-weight: 780;
+}
+
+.trackStatusMiddle {
+    margin-left: 4px;
+}
+
+.trackStatusValue {
+    margin-left: 4px;
+}
+
+.edol-force-rtl .trackStatusMiddle,
+.edol-force-rtl .trackStatusValue {
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+.trackDescription {
+    margin: 26px auto 0;
+    max-width: 720px;
+    padding: 18px 20px;
+    border: 1px solid rgba(217, 226, 236, 0.86);
+    border-radius: 14px;
+    background: #f7f9fc;
+    text-align: left;
+}
+
+.edol-force-rtl .trackDescription {
+    text-align: right;
+}
+
+.trackDescription span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--edol-muted, #71809b);
+    font: 750 13px/1.2 var(--edol-font);
+}
+
+.trackDescription p {
+    margin: 0;
+    color: var(--edol-text, #06142d);
+    font: 400 15px/1.65 var(--edol-font);
+    white-space: pre-wrap;
+}
+
+.edol-force-rtl .trackHeroInner,
+.edol-force-rtl .trackIntro {
+    direction: rtl;
+    text-align: right;
+}
+
+.edol-force-rtl .trackIntro p {
+    grid-column: 2;
+}
+
+.trackReopenButton {
+    min-width: 160px;
+}
+
+@media (max-width: 720px) {
+    .trackPage .trackFormContent {
+        padding-top: 52px;
+    }
+
+    .trackHero {
+        padding-bottom: 22px;
+    }
+
+    .trackHeroInner {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .trackHero h1 {
+        font-size: 25px;
+    }
+
+    .trackContent {
+        padding-bottom: 58px;
+    }
+
+    .trackCard {
+        padding: 30px 22px;
+        border-radius: 13px;
+    }
+
+    .trackIntro {
+        grid-template-columns: 46px minmax(0, 1fr);
+        column-gap: 14px;
+    }
+
+    .trackIcon {
+        width: 40px;
+        height: 40px;
+        font-size: 19px;
+    }
+
+    .trackIntro h2,
+    .trackResult h2 {
+        font-size: 20px;
+    }
+
+    .trackActions {
+        justify-content: stretch;
+    }
+
+    .trackActions .edol-btn {
+        width: 100%;
+    }
+}
+
+/* ===== Ticket validation styles kept centralized ===== */
+.ticketInputRow {
+    grid-template-columns: 78px 1fr;
+}
+
+.ticketPrefixSelect {
+    min-width: 78px;
+    text-align: center;
+    padding-left: 12px;
+    padding-right: 28px;
+}
+
+.ticketItem--error .ticketNumberField .edol-input,
+.ticketItem--error .ticketNumberField .edol-select {
+    border-color: #ef1b2d !important;
+    box-shadow: 0 0 0 1px rgba(239, 27, 45, 0.18) !important;
+    background: #fff8f8 !important;
+}
+
+.ticketError {
+    margin: 0.75rem 0 0;
+    color: #ef1b2d;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.edol-phone__number::placeholder {
+    color: #a8b4c5 !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+}
+
+
+/* ===== Consolidated from eDolDatePicker/eDolDatePicker.css ===== */
+.edol-date-picker {
+    position: relative;
+    width: 100%;
+}
+
+.edol-date-control {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 40px;
+    overflow: hidden;
+    border: 1px solid #d5dce7;
+    border-radius: 6px;
+    background: #f7f9fc;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+.edol-date-control:hover,
+.edol-date-control.is-open {
+    border-color: #fac1c3;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(236, 28, 36, 0.08);
+}
+
+.edol-date-display {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #1f2937;
+    font-family: var(--edol-font, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.edol-date-display::placeholder {
+    color: #a8b3c4;
+}
+
+.edol-date-toggle {
+    width: 42px;
+    height: 40px;
+    flex: 0 0 42px;
+    border: 0;
+    border-left: 1px solid #d5dce7;
+    background: transparent;
+    color: #71809a;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.edol-calendar {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    z-index: 99999;
+    width: min(300px, calc(100vw - 32px));
+    padding: 16px 16px 14px;
+    border: 1px solid #edf0f5;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    font-family: var(--edol-font, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+}
+
+.edol-calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.edol-calendar-title {
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.edol-calendar-title-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.edol-calendar-month,
+.edol-calendar-year {
+    height: 30px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #06142d;
+    font-family: var(--edol-font, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.edol-calendar-month {
+    width: 86px;
+}
+
+.edol-calendar-year {
+    width: 78px;
+}
+
+.edol-calendar-month:hover,
+.edol-calendar-year:hover,
+.edol-calendar-month:focus,
+.edol-calendar-year:focus {
+    border-color: #e5eaf1;
+    background: #f8fafc;
+}
+
+.edol-nav {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #7a879a;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.edol-nav:hover {
+    background: #f5f7fb;
+    color: #111827;
+}
+
+.edol-weekdays,
+.edol-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.edol-weekdays {
+    margin-bottom: 8px;
+    color: #3f4b5f;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.edol-day {
+    width: 30px;
+    height: 30px;
+    justify-self: center;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #263247;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.edol-day:hover:not(:disabled) {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #ec1c24;
+}
+
+.edol-day.is-muted {
+    color: #c4cbd6;
+}
+
+.edol-day.is-today:not(.is-selected) {
+    border-color: #ec1c24;
+    color: #ec1c24;
+}
+
+.edol-day.is-selected {
+    background: #ffffff;
+    border-color: #ec1c24;
+    color: #ec1c24;
+    box-shadow: 0 0 0 1px #ec1c24 inset;
+}
+
+.edol-day:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+}
+
+.edol-calendar-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f2f6;
+}
+
+.edol-footer-button {
+    border: 0;
+    background: transparent;
+    color: #ec1c24;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.edol-footer-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+@media (max-width: 420px) {
+    .edol-calendar {
+        width: min(286px, calc(100vw - 24px));
+        padding: 14px;
+    }
+
+    .edol-weekdays,
+    .edol-days {
+        gap: 4px;
+    }
+
+    .edol-day {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 420px) {
+    .edol-calendar-title-controls {
+        gap: 4px;
+    }
+
+    .edol-calendar-month {
+        width: 78px;
+    }
+
+    .edol-calendar-year {
+        width: 70px;
+    }
+}
+
+/* ===== Ticket number split input / 13-character alert ===== */
+.ticketInputRow {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    gap: 8px;
+}
+.ticketPrefixSelect {
+    min-width: 78px;
+    text-align: center;
+    padding-left: 12px;
+    padding-right: 28px;
+}
+.ticketHint {
+    white-space: pre-line;
+}
+.ticketItem--error .ticketNumberField .edol-input,
+.ticketItem--error .ticketNumberField .edol-select {
+    border-color: #ef1b2d !important;
+    box-shadow: 0 0 0 1px rgba(239, 27, 45, 0.18) !important;
+    background: #fff8f8 !important;
+}
+
+
+/* ===== Ticket validation message - centralized ===== */
+.ticketHint,
+.ticketError {
+    margin-top: 8px;
+    color: #ef1b2d;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    white-space: pre-line;
+    font-weight: 400;
+}
+.ticketItem--error .ticketNumberField .edol-input,
+.ticketItem--error .ticketNumberField .edol-select {
+    border-color: #ef1b2d !important;
+    box-shadow: 0 0 0 1px rgba(239, 27, 45, 0.18) !important;
+    background: #fff8f8 !important;
+}
+
+
+/* ===== Form width tuning - centralized ===== */
+@media (min-width: 901px) {
+    .formContent {
+        max-width: 1120px !important;
+    }
+
+    .formContent .progressPath {
+        max-width: 1120px !important;
+    }
+
+    .formContent .formPreviewCard,
+    .formContent .edol-form-card {
+        max-width: 100% !important;
+    }
+}
+
+/* ===== Repeater validation emphasis - centralized ===== */
+.ticketItem--error .ticketNumberField .edol-input,
+.ticketItem--error .ticketNumberField .edol-select,
+.ticketItem--error .ticketNumberField .ticketPrefixSelect {
+    border-color: #ef1b2d !important;
+    box-shadow: 0 0 0 1px rgba(239, 27, 45, 0.18) !important;
+    background: #fff8f8 !important;
+}
+
+.ticketHint,
+.ticketError {
+    margin-top: 8px !important;
+    color: #ef1b2d !important;
+    font-size: 0.95rem !important;
+    line-height: 1.35 !important;
+    white-space: pre-line !important;
+    font-weight: 400 !important;
+}
+
+.edol-precheck {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: clamp(0.25rem, 1vw, 0.5rem);
+}
+
+.edol-precheck-header {
+    margin-bottom: 1.6rem;
+}
+
+.edol-precheck-header h1 {
+    margin: 0.45rem 0 0.35rem;
+    font-size: clamp(1.8rem, 3.2vw, 2.55rem);
+    line-height: 1.08;
+    color: #031633;
+    letter-spacing: -0.03em;
+}
+
+.edol-precheck-header p {
+    margin: 0;
+    max-width: 780px;
+    color: #667799;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    font-weight: 600;
+}
+
+.edol-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.36rem 0.78rem;
+    border-radius: 999px;
+    background: #fff0f1;
+    color: #ed1b2f;
+    font-weight: 800;
+    font-size: 0.86rem;
+}
+
+.edol-precheck-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1.4rem;
+}
+
+.edol-field-group.has-error .edol-input,
+.edol-field-group.has-error c-e-dol-phone-input {
+    border-color: #ff1c2f;
+}
+
+.edol-error-box {
+    margin-bottom: 1.25rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #ffb3b9;
+    background: #fff4f5;
+    color: #d80d1f;
+    border-radius: 0.75rem;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .edol-grid--two {
+        grid-template-columns: 1fr;
+    }
+
+    .edol-precheck-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+}

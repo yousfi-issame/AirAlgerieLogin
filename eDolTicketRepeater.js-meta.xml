@@ -1,0 +1,47 @@
+<template>
+    <div class="fileUploadBlock">
+        <template if:true={helperText}>
+            <div class="fileHelper">{helperText}</div>
+        </template>
+
+        <div class="uploadZone">
+            <input class="hiddenFileInput" type="file" multiple accept={acceptedFormats} onchange={handleFileChange} />
+            <button class="uploadButton" type="button" onclick={openFilePicker}>⌄ {label}</button>
+        </div>
+
+        <template if:true={limitMessage}>
+            <div class="fileLimitNote">{limitMessage}</div>
+        </template>
+
+        <template if:true={hasFiles}>
+            <div class="fileList">
+                <template for:each={files} for:item="file">
+                    <div class="fileRow" key={file.key}>
+                        <span class="fileThumbnail">
+                            <template if:true={file.isImage}>
+                                <img src={file.previewUrl} alt="" />
+                            </template>
+                            <template if:false={file.isImage}>📎</template>
+                        </span>
+                        <span class="fileName" title={file.name}>{file.name}</span>
+                        <button class="fileRemove" type="button" data-key={file.key} onclick={removeFile} aria-label="Remove file">×</button>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={showLimitDialog}>
+            <section class="edolModalBackdrop" role="presentation">
+                <div class="edolModal" role="dialog" aria-modal="true" aria-labelledby="file-limit-title">
+                    <button class="edolModalClose" type="button" onclick={closeLimitDialog} aria-label="Close">×</button>
+                    <div class="edolModalIcon">!</div>
+                    <h2 id="file-limit-title">{limitMessage}</h2>
+                    <div class="edolModalActions">
+                        <button class="modalCancel" type="button" onclick={closeLimitDialog}>{cancelLabel}</button>
+                        <button class="modalOk" type="button" onclick={closeLimitDialog}>{okLabel}</button>
+                    </div>
+                </div>
+            </section>
+        </template>
+    </div>
+</template>

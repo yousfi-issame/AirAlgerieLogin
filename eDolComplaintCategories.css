@@ -1,0 +1,34 @@
+<template>
+    <div class="edol-phone" onclick={stopClick}>
+        <button class="edol-phone__flag-button" type="button" onclick={toggleDropdown} disabled={disabled} aria-haspopup="listbox" aria-expanded={isOpen}>
+            <img class="edol-phone__flag-img" src={selectedFlagUrl} alt={selectedCountryName} />
+            <span class="edol-phone__chevron">⌄</span>
+        </button>
+
+        <span class="edol-phone__prefix">{selectedDialCode}</span>
+
+        <input
+            class="edol-phone__number"
+            type="tel"
+            value={phoneNumber}
+            placeholder={visiblePlaceholder}
+            title={phoneFormatTitle}
+            aria-label={phoneFormatTitle}
+            maxlength={phoneMaxLength}
+            oninput={handleNumberChange}
+            disabled={disabled}
+        />
+
+        <template if:true={isOpen}>
+            <div class="edol-phone__dropdown" role="listbox">
+                <template for:each={phoneOptions} for:item="option">
+                    <button key={option.key} class={option.className} type="button" data-value={option.key} onclick={handleCountryCodeSelect} role="option" aria-selected={option.isSelected}>
+                        <img class="edol-phone__option-flag" src={option.flagUrl} alt={option.country} />
+                        <span class="edol-phone__option-country">{option.country}</span>
+                        <span class="edol-phone__option-code">{option.code}</span>
+                    </button>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

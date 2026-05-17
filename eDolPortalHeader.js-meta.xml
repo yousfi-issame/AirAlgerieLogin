@@ -1,0 +1,15 @@
+@import 'c/eDolDesign';
+
+.edol-completion-card-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 46px 48px;
+    text-align: center;
+}
+
+@media (max-width: 720px) {
+    .edol-completion-card-wrap {
+        max-width: 100%;
+        padding: 34px 22px;
+    }
+}

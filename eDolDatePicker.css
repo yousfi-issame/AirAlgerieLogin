@@ -1,0 +1,183 @@
+import { LightningElement, api } from 'lwc';
+import CAPTCHA_FRAME from '@salesforce/resourceUrl/EDOL_ReCaptcha_Frame';
+import SITE_KEY from '@salesforce/label/c.EDOL_ReCaptcha_Site_Key';
+
+const TEXT = {
+    en: {
+        checkbox: "I'm not a robot",
+        title: 'Security verification',
+        help: 'Complete the verification below. The challenge is shown in a larger window so it works properly on all screens.',
+        error: 'reCAPTCHA could not be loaded. Please refresh the page and try again.'
+    },
+    fr: {
+        checkbox: 'Je ne suis pas un robot',
+        title: 'Vérification de sécurité',
+        help: 'Complétez la vérification ci-dessous. Le challenge est affiché dans une fenêtre plus grande pour fonctionner correctement sur tous les écrans.',
+        error: 'Le reCAPTCHA n’a pas pu être chargé. Veuillez actualiser la page puis réessayer.'
+    },
+    ar: {
+        checkbox: 'أنا لست روبوتًا',
+        title: 'التحقق الأمني',
+        help: 'يرجى إكمال التحقق أدناه. يظهر التحدي في نافذة أكبر ليعمل بشكل صحيح على جميع الشاشات.',
+        error: 'تعذر تحميل reCAPTCHA. يرجى تحديث الصفحة والمحاولة مرة أخرى.'
+    }
+};
+
+export default class EDolCaptcha extends LightningElement {
+    @api language = 'en';
+    @api hideInline = false;
+
+    token;
+    errorMessage = '';
+    isChallengeOpen = false;
+    messageHandler;
+    keydownHandler;
+    frameVersion = Date.now();
+
+    connectedCallback() {
+        this.messageHandler = this.handleMessage.bind(this);
+        this.keydownHandler = this.handleKeydown.bind(this);
+        window.addEventListener('message', this.messageHandler);
+        window.addEventListener('keydown', this.keydownHandler);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('message', this.messageHandler);
+        window.removeEventListener('keydown', this.keydownHandler);
+    }
+
+    get normalizedLanguage() {
+        return ['en', 'fr', 'ar'].includes(this.language) ? this.language : 'en';
+    }
+
+    get labels() {
+        return TEXT[this.normalizedLanguage] || TEXT.en;
+    }
+
+    get checkboxLabel() {
+        return this.labels.checkbox;
+    }
+
+    get modalTitle() {
+        return this.labels.title;
+    }
+
+    get modalHelp() {
+        return this.labels.help;
+    }
+
+    get captchaLanguage() {
+        return this.normalizedLanguage;
+    }
+
+    get captchaUrl() {
+        const siteKey = (SITE_KEY || '').trim();
+        return `${CAPTCHA_FRAME}?sitekey=${encodeURIComponent(siteKey)}&hl=${encodeURIComponent(this.captchaLanguage)}&v=${encodeURIComponent(this.frameVersion)}`;
+    }
+
+    get verified() {
+        return Boolean(this.token);
+    }
+
+    get wrapperClass() {
+        return this.hideInline ? 'edol-captcha-wrapper edol-captcha-wrapper--hidden-inline' : 'edol-captcha-wrapper';
+    }
+
+    get inlineButtonClass() {
+        return this.verified
+            ? 'edol-captcha-inline edol-captcha-inline--verified'
+            : 'edol-captcha-inline';
+    }
+
+    @api
+    open() {
+        this.openChallenge();
+    }
+
+    @api
+    close() {
+        this.closeChallenge();
+    }
+
+    @api
+    validate() {
+        if (!this.verified) {
+            this.openChallenge();
+            return false;
+        }
+        return true;
+    }
+
+    openChallenge() {
+        if (this.verified) {
+            return;
+        }
+
+        this.errorMessage = '';
+        this.isChallengeOpen = true;
+    }
+
+    closeChallenge() {
+        this.isChallengeOpen = false;
+    }
+
+    handleKeydown(event) {
+        if (event.key === 'Escape' && this.isChallengeOpen) {
+            this.closeChallenge();
+        }
+    }
+
+    handleMessage(event) {
+        const data = event.data || {};
+
+        if (data.source !== 'edol-recaptcha') {
+            return;
+        }
+
+        if (data.type === 'captcha-token') {
+            this.token = data.token;
+            this.errorMessage = '';
+            this.isChallengeOpen = false;
+            this.dispatchCaptchaChange(true, data.token);
+            return;
+        }
+
+        if (data.type === 'captcha-expired') {
+            this.token = null;
+            this.isChallengeOpen = false;
+            this.frameVersion = Date.now();
+            this.dispatchCaptchaChange(false, null);
+            return;
+        }
+
+        if (data.type === 'captcha-error') {
+            this.token = null;
+            this.isChallengeOpen = false;
+            this.frameVersion = Date.now();
+            this.errorMessage = data.message || this.labels.error;
+            this.dispatchCaptchaChange(false, null);
+        }
+    }
+
+    dispatchCaptchaChange(verified, token) {
+        this.dispatchEvent(
+            new CustomEvent('captchachange', {
+                detail: {
+                    verified,
+                    token
+                },
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
+
+    @api
+    reset() {
+        this.token = null;
+        this.errorMessage = '';
+        this.isChallengeOpen = false;
+        this.frameVersion = Date.now();
+        this.dispatchCaptchaChange(false, null);
+    }
+}

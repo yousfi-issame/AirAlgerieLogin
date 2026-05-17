@@ -1,0 +1,25 @@
+
+<template>
+    <main class={pageClass} style={backgroundStyle}>
+        <div class="backgroundOverlay"></div>
+        <c-e-dol-portal-header selected-language={selectedLanguage} onlanguagechange={handleLanguageChange}></c-e-dol-portal-header>
+
+        <section class="hero">
+            <div class="heroContent">
+                <h1>{heroTitleLineOne}<br />{heroTitleLineTwo}</h1>
+                <p>{text.homeSubtitle}</p>
+                <div class="actions">
+                    <button class="edol-btn edol-btn-primary" type="button" onclick={goToComplaints}>{text.complaint}</button>
+                    <button class="edol-btn edol-btn-secondary edol-btn-track" type="button" onclick={goToTrackComplaint}>{text.track}</button>
+                    <button class="edol-link-button" type="button" disabled>{text.more}</button>
+                </div>
+            </div>
+
+            <div class="visualWrap">
+                <div class="visualCircle">
+                    <img src={homeVisualUrl} alt="Air Algérie digital service" />
+                </div>
+            </div>
+        </section>
+    </main>
+</template>
